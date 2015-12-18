@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job maxFilesPerProcess="1" filesPerHour="1" fileListSyntax="xrootd" simulateSubmission="false">
+  <command>
+    starver SL15c
+    ln -s /star/u/zamiller/run14NPE/makePicoDst.C .
+    ln -s /star/u/zamiller/run14NPE/StRoot .
+    ln -s /star/u/zamiller/run14NPE/.sl64_gcc482 .
+    ln -s /star/u/zamiller/run14NPE/.sl64_gcc482 ./.s164_gcc447 <!-- Added to satisfy the $SCRATCH requirements, just a pure link to the current gcc ver -->
+    root4star -q -b -l makePicoDst.C\(&runnumber;,\"$INPUTFILE0\"\)
+  </command>
+  <stdout URL="file:/star/u/zamiller/run14NPE/Log/&runnumber;.out"/>
+  <stderr URL="file:/star/u/zamiller/run14NPE/Log/&runnumber;.err"/>
+  <input URL="catalog:star.bnl.gov?production=P15ic,filename~st_physics,runnumber=&runnumber;,filetype=daq_reco_Mudst,storage!=HPSS" />
+  <!--  <output fromScratch="*picoDst.root" toURL="file:/star/u/zamiller/run14NPE/PicoProd/" /> -->
+  <output fromScratch="*purity.root" toURL="file:/star/u/zamiller/run14NPE/PurityProd/" />
+</job>
+
+
+

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job maxFilesPerProcess="1" filesPerHour="1" fileListSyntax="xrootd" simulateSubmission="false">
+
+        <stdout discard="true" />
+        <stderr URL="file:./err/$JOBID.err" />
+                
+        <Generator>
+        <Location>./report/</Location>
+        <ScriptLocation>./csh/</ScriptLocation>
+        <ListLocation>./list/</ListLocation>
+        </Generator>
+                                                
+<SandBox installer="ZIP">
+	<Package name="LocalPackage">
+		<File>file:/star/u/huangbc/data01/pico/anaTree/20150525_v3/muDstToAnaTree_ht/makePicoDst.C</File>
+		<File>file:/star/u/huangbc/data01/pico/anaTree/20150525_v3/muDstToAnaTree_ht/StRoot</File>
+		<File>file:/star/u/huangbc/data01/pico/anaTree/20150525_v3/muDstToAnaTree_ht/.sl64_gcc447</File>
+                <File>file:/star/u/huangbc/data01/pico/anaTree/20150525_v3/muDstToAnaTree_ht/checkProduction.C</File>
+        </Package>
+</SandBox>
+
+<command>
+starver SL15c
+
+setenv EDAY `perl $STAR/StRoot/macros/embedding/getYearDayFromFile.pl -d ${FILEBASENAME}`
+setenv ERUN `perl $STAR/StRoot/macros/embedding/getYearDayFromFile.pl -r ${FILEBASENAME}`
+setenv EOUTDIR '/star/u/huangbc/data01/pico/anaTree/20150525_v3/muDstToAnaTree_ht/PicoProd/'$EDAY'/'$ERUN
+setenv ELOGDIR '/star/u/huangbc/data01/pico/anaTree/20150525_v3/muDstToAnaTree_ht/Log/'$EDAY'/'$ERUN
+setenv CLOGDIR '/star/u/huangbc/data01/pico/anaTree/20150525_v3/muDstToAnaTree_ht/CheckLog/'$EDAY'/'$ERUN
+echo $EOUTDIR
+echo $ELOGDIR
+echo $CLOGDIR
+
+if ( ! -f $EOUTDIR ) then
+  mkdir -pv $EOUTDIR
+  chmod -R g+rw $EOUTDIR
+endif
+          
+if ( ! -f $ELOGDIR ) then
+  mkdir -pv $ELOGDIR
+  chmod -R g+rw $ELOGDIR
+endif
+
+if ( ! -f $CLOGDIR ) then
+  mkdir -pv $CLOGDIR
+  chmod -R g+rw $CLOGDIR
+endif
+                    
+root4star -q -b -l makePicoDst.C\($ERUN,\"$INPUTFILE0\"\) &gt;&amp; ${FILEBASENAME}.log
+tar -zcvf ${FILEBASENAME}.log.tgz ${FILEBASENAME}.log
+
+root4star -l -b -q -x checkProduction.C\(\"$FILEBASENAME.picoDst.root\",\"$INPUTFILE0\"\)
+
+</command>
+
+    <input URL="filelist:/star/u/huangbc/data01/pico/anaTree/20150525_v3/muDstToAnaTree_ht/&listOfFiles;" />
+    <output fromScratch="*.log.tgz" toURL="$ELOGDIR/"/>
+    <output fromScratch="*.nEventsCheck.log" toURL="$CLOGDIR/"/>
+    <output fromScratch="*anaTree.root" toURL="$EOUTDIR/" />
+    <output fromScratch="*qa.root" toURL="$EOUTDIR/" />
+    <output fromScratch="*hist.root" toURL="$EOUTDIR/" />
+    <output fromScratch="*purity.root" toURL="$EOUTDIR/" />
+</job>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE note [
+<!ENTITY runnumber "15081013">
+]>
+<!-- Created on Tue Dec 15 15:53:13 2015 -->
+<job maxFilesPerProcess="1" filesPerHour="1" fileListSyntax="xrootd" simulateSubmission="false">
+  <command>
+    starver SL15c
+    ln -s /star/u/zamiller/run14NPE/makePicoDst.C .
+    ln -s /star/u/zamiller/run14NPE/StRoot .
+    ln -s /star/u/zamiller/run14NPE/.sl64_gcc482 .
+    root4star -q -b -l makePicoDst.C\(&runnumber;,\"$INPUTFILE0\"\)
+  </command>
+  <stdout URL="file:/star/u/zamiller/run14NPE/Log/&runnumber;.out"/>
+  <stderr URL="file:/star/u/zamiller/run14NPE/Log/&runnumber;.err"/>
+  <input URL="catalog:star.bnl.gov?production=P15ic,filename~st_physics,runnumber=&runnumber;,filetype=daq_reco_Mudst,storage!=HPSS" nFiles="5" />
+  <!--  <output fromScratch="*picoDst.root" toURL="file:/star/u/zamiller/run14NPE/PicoProd/" /> -->
+  <output fromScratch="*purity.root" toURL="file:/star/u/zamiller/run14NPE/PurityProd/" />
+</job>
+
+
+

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job maxFilesPerProcess="1" filesPerHour="1" fileListSyntax="xrootd" simulateSubmission="false">
+  <command>
+    starver SL10k
+    ln -s /star/institutions/lbl_prod/Run10_AuAu39GeV/all/makePicoDst.C .
+    ln -s /star/institutions/lbl_prod/Run10_AuAu39GeV/all/StRoot .
+    ln -s /star/institutions/lbl_prod/Run10_AuAu39GeV/all/.sl53_gcc432 .
+    root4star -q -b -l makePicoDst.C\(&runnumber;,\"$INPUTFILE0\"\)
+  </command>
+  <stdout URL="file:/star/institutions/lbl_prod/Run10_AuAu39GeV/all/Log/&day;/&runnumber;/$FILEBASENAME.out"/>
+  <stderr URL="file:/star/institutions/lbl_prod/Run10_AuAu39GeV/all/Log/&day;/&runnumber;/$FILEBASENAME.err"/>
+  <input URL="catalog:star.bnl.gov?production=P10ik,filename~st_physics||st_pmdftp||st_ht,runnumber=&runnumber;,filetype=daq_reco_Mudst,storage=local" nFiles="all" />
+  <output fromScratch="*picoDst.root" toURL="file:/star/institutions/lbl_prod/Run10_AuAu39GeV/all/PicoProd/&day;/&runnumber;/" />
+</job>

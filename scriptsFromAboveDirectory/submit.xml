@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job maxFilesPerProcess="1" filesPerHour="1" fileListSyntax="paths" simulateSubmission="false">
+<command>
+starver DEV
+ln -s &path;/runAnaTree.C .
+ln -s &path;/run.csh .
+ln -s &path;/.sl64_gcc447 .
+ln -s &path;/StRoot .
+ln -s &path;/filelist .
+
+./run.csh &nEvents; &filelist; &outfile;
+
+</command>
+    <stdout URL="file:&outpath;/log/log_&libver;/anaTree_&jobid;.out" />
+    <stderr URL="file:&outpath;/log/log_&libver;/anaTree_&jobid;.err" />
+    <output fromScratch="*.root" toURL="file:&outpath;/out/out_&libver;/" />
+</job>
