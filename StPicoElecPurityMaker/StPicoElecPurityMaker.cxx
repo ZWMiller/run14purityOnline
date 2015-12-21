@@ -214,7 +214,7 @@ Int_t StPicoElecPurityMaker::Make() {
     if(runId==mBadRuns[i]) return kStOK;
   }
 
-  //if( ! event->isMinBias()) return kStOK; // If not MinBias, get out of loop
+  if( ! event->isMinBias()) return kStOK; // If not MinBias, get out of loop
   //if( ! isBHT1( event ) ) return kStOK;
 
   //=================event selection================
@@ -339,7 +339,7 @@ Int_t StPicoElecPurityMaker::Make() {
     */
 
     // Check if pass track quality && eID, if fail either... skip it
-    if(!passGoodTrack(track) || !passEIDCuts(event, track)) continue;
+    if(!track->isHFTTrack() || !passGoodTrack(track) || !passEIDCuts(event, track)) continue;
 
     Double_t meta,mpt,mphi,mcharge,mdedx;
     //change to global track
@@ -368,9 +368,9 @@ Int_t StPicoElecPurityMaker::Make() {
       mtrkphi->Fill( mphi );
       //   mtrketaphi->Fill( mphi,meta );
       mnsigmaPI->Fill( track->nSigmaPion() );
-      mnsigmaP->Fill( track->nSigmaProton() );
-      mnsigmaK->Fill( track->nSigmaKaon() );
-      mnsigmaE->Fill( track->nSigmaElectron() );
+      mnsigmaP->Fill(  track->nSigmaProton() );
+      mnsigmaK->Fill(  track->nSigmaKaon() );
+      mnsigmaE->Fill(  track->nSigmaElectron() );
 
       mtrketa_pt->Fill(mpt*mcharge,meta);
       mtrkphi_pt->Fill(mpt*mcharge,mphi);
@@ -610,7 +610,7 @@ Bool_t StPicoElecPurityMaker::passEIDCuts(StPicoEvent* event, StPicoTrack* track
   else mpoe = 0.0; // if no BEMC, set value = 0
 
   mpt  = track->pMom().perp();
-  mdca = dcaXY;
+  mdca = dcamag;
 
   if( mpt > ePtCut && mdca < dcaCut && mpoe > poeCutLow && mpoe < poeCutHigh )
     return true;
