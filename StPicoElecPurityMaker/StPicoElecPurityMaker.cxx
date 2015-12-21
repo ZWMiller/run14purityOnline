@@ -150,10 +150,10 @@ void StPicoElecPurityMaker::DeclareHistograms() {
   mtrketa     = new TH1F("trketa","eta ",200,-2,2);
   mtrkphi     = new TH1F("trkphi","the phi distribution of all tracks",200,0,6.3);
 
-  mnsigmaPI_Pt   = new TH2F("nsigmaPI_Pt", "nsigmapion vs Pt of all tracks; Pt; nsigmaPI;",200,0,20,200,-20,20);
-  mnsigmaP_Pt   = new TH2F("nsigmaP_Pt", "nsigmaproton vs Pt of all tracks; Pt; nsigmaP;",200,0,20,200,-20,20);
-  mnsigmaK_Pt   = new TH2F("nsigmaK_Pt", "nsigmaK vs Pt of all tracks; Pt; nsigmaK;",200,0,20,200,-20,20);
-  mnsigmaE_Pt   = new TH2F("nsigmaE_Pt", "nsigmaE vs Pt of all tracks; Pt; nsigmaE;",200,0,20,200,-20,20);
+  mnsigmaPI_Pt   = new TH2F("nsigmaPI_Pt", "nsigmapion vs Pt of all tracks; Pt; nsigmaPI;",400,0,20,200,-20,20);
+  mnsigmaP_Pt   = new TH2F("nsigmaP_Pt", "nsigmaproton vs Pt of all tracks; Pt; nsigmaP;",400,0,20,200,-20,20);
+  mnsigmaK_Pt   = new TH2F("nsigmaK_Pt", "nsigmaK vs Pt of all tracks; Pt; nsigmaK;",400,0,20,200,-20,20);
+  mnsigmaE_Pt   = new TH2F("nsigmaE_Pt", "nsigmaE vs Pt of all tracks; Pt; nsigmaE;",400,0,20,200,-20,20);
 
   mnsigmaPI   = new TH1F("nsigmaPI", "nsigmapion of all tracks",200,-20,20);
   mnsigmaK    = new TH1F("nsigmaK", "nsigmaKaon of all tracks",200,-20,20);
@@ -322,21 +322,21 @@ Int_t StPicoElecPurityMaker::Make() {
 
   // TRACK LOOP
   for(int i=0; i<numberoftracks; i++){
-  
+
     StPicoTrack* track=(StPicoTrack*) mPicoDst->track(i);
-    
+
     // Don't plot DCA currently, no need to calculate
     /*StDcaGeometry *dcaG = new StDcaGeometry();
-    dcaG->set(track->params(),track->errMatrix());
-    StPhysicalHelixD helix = dcaG->helix();
-    delete dcaG;
+      dcaG->set(track->params(),track->errMatrix());
+      StPhysicalHelixD helix = dcaG->helix();
+      delete dcaG;
 
-    StThreeVectorF dcaPoint = helix.at( helix.pathLength(vertexPos.x(), vertexPos.y())  );
-    double dcamag= (dcaPoint-vertexPos).mag();
-    StThreeVectorF dcaP = helix.momentumAt( vertexPos.x(),vertexPos.y() );
-    double dcaXY= ( (dcaPoint-vertexPos).x()*dcaP.y()-(dcaPoint-vertexPos).y()*dcaP.x() )/dcaP.perp();
-    double dcaZ= dcaPoint.z() - vertexPos.z();
-    */
+      StThreeVectorF dcaPoint = helix.at( helix.pathLength(vertexPos.x(), vertexPos.y())  );
+      double dcamag= (dcaPoint-vertexPos).mag();
+      StThreeVectorF dcaP = helix.momentumAt( vertexPos.x(),vertexPos.y() );
+      double dcaXY= ( (dcaPoint-vertexPos).x()*dcaP.y()-(dcaPoint-vertexPos).y()*dcaP.x() )/dcaP.perp();
+      double dcaZ= dcaPoint.z() - vertexPos.z();
+      */
 
     // Check if pass track quality && eID, if fail either... skip it
     if(!track->isHFTTrack() || !passGoodTrack(track) || !passEIDCuts(event, track)) continue;
@@ -586,7 +586,7 @@ Bool_t StPicoElecPurityMaker::passGoodTrack(StPicoTrack* track)
 Bool_t StPicoElecPurityMaker::passEIDCuts(StPicoEvent* event, StPicoTrack* track)
 {
   double mpt, mdca, mpoe;
-  
+
   // Get DCA info
   StThreeVectorF vertexPos;
   vertexPos = event->primaryVertex();
@@ -603,8 +603,8 @@ Bool_t StPicoElecPurityMaker::passEIDCuts(StPicoEvent* event, StPicoTrack* track
   // Get PoE info
   Int_t emcpidtraitsid=track->emcPidTraitsIndex();
   if(emcpidtraitsid>=0){
-   StPicoEmcPidTraits* emcpidtraits=(StPicoEmcPidTraits*) mPicoDst->emcPidTraits(emcpidtraitsid);
-  
+    StPicoEmcPidTraits* emcpidtraits=(StPicoEmcPidTraits*) mPicoDst->emcPidTraits(emcpidtraitsid);
+
     mpoe = track->pMom().mag()/emcpidtraits->e();
   }
   else mpoe = 0.0; // if no BEMC, set value = 0
@@ -612,7 +612,22 @@ Bool_t StPicoElecPurityMaker::passEIDCuts(StPicoEvent* event, StPicoTrack* track
   mpt  = track->pMom().perp();
   mdca = dcamag;
 
-  if( mpt > ePtCut && mdca < dcaCut && mpoe > poeCutLow && mpoe < poeCutHigh )
+  // Get TOF Infor
+  Float_t invBeta=9999;
+  Float_t toflocaly=9999;
+  Float_t tofMatchFlag = -1;
+  Int_t tofpidid=track->bTofPidTraitsIndex();
+  if(tofpidid>0){
+    StPicoBTofPidTraits* btofpidtrait=(StPicoBTofPidTraits*) mPicoDst->btofPidTraits(tofpidid);
+
+    //------tof information start----------
+    Float_t tofbeta=btofpidtrait->btofBeta();
+    invBeta = (1/tofbeta) - 1.0;
+    toflocaly = btofpidtrait->btofYLocal();
+    tofMatchFlag = btofpidtrait->btofMatchFlag(); 
+  }
+
+  if( mpt > ePtCut && mdca < dcaCut && mpoe > poeCutLow && mpoe < poeCutHigh && invBeta < tofInvBetaCut && tofMatchFlag > 0 && fabs(toflocaly) < toflocalyCut)
     return true;
   else
     return false;
@@ -668,5 +683,7 @@ void StPicoElecPurityMaker::SetDefaultCuts()
   setPrimaryDCACut(1.5); // eDCA < 1.5 cm
   setNhitsCuts(15.,20.,0.52); // nHitsdEdx >= 15, nHitsFit >= 20, nHitsRatio >= 0.52
   setPoECut(0.3, 1.5); // 0.3 < p/E < 1.5
+  setToFBetaCut(0.3); // 1/B -1 < 0.3
+  setToFLocalyCut(1.8); // |tof_localy| < 1.8
 }
 

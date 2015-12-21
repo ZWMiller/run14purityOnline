@@ -52,6 +52,8 @@ class StPicoElecPurityMaker : public StMaker {
      void   setNhitsCuts(float dedx, float fit, float ratio) 
         { nhitsdEdxCut = dedx; nhitsFitCut = fit; nhitsRatioCut = ratio; };
      void   setPoECut(float pEl, float pEh) { poeCutLow = pEl; poeCutHigh = pEh; };
+     void   setToFBetaCut(float iB)         { tofInvBetaCut = iB; };
+     void   setToFLocalyCut(float lY)       { toflocalyCut = lY; };
 
   private:
    StPicoDstMaker *mPicoDstMaker;
@@ -64,6 +66,7 @@ class StPicoElecPurityMaker : public StMaker {
    float ePtCut, etaCut, dcaCut;
    float nhitsdEdxCut, nhitsFitCut, nhitsRatioCut;
    float poeCutLow, poeCutHigh;
+   float tofInvBetaCut,toflocalyCut;
    
    float nSigELow, nSigEHigh;
    float nSigPLow, nSigPHigh;
