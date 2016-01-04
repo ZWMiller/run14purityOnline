@@ -1,0 +1,1 @@
+rm sched* *.session.xml

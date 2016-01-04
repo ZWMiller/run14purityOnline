@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for RUN in `cat List/sampleDec16.list`
+for RUN in `cat List/testList4.list`
 do
      echo $RUN
      #cd Submit/$day/$RUN
