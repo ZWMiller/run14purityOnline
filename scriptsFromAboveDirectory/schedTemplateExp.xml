@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE note [
+<!ENTITY runnumber "15080014">
+]>
+<!-- Created on Thu Jan  7 13:12:50 2016 -->
+<job maxFilesPerProcess="1" filesPerHour="1" fileListSyntax="xrootd" simulateSubmission="false">
+  <command>
+    starver SL15c
+    root4star -q -b -l makePicoDst.C\(&runnumber;,\"$INPUTFILE0\"\)
+  </command>
+
+  <SandBox installer="ZIP">
+    <Package name="LocalLibraries_hists">
+      <File>file:/star/u/zamiller/run14NPE/makePicoDst.C</File>
+      <File>file:/star/u/zamiller/run14NPE/StRoot/</File>
+      <File>file:/star/u/zamiller/run14NPE/.sl64_gcc482/</File>
+      <File>file:/star/u/zamiller/run14NPE/.sl64_gcc447/</File>
+    </Package>
+  </SandBox>
+
+  <stdout URL="file:/star/u/zamiller/run14NPE/Log/&runnumber;.out"/>
+  <stderr URL="file:/star/u/zamiller/run14NPE/Log/&runnumber;.err"/>
+  <input URL="catalog:star.bnl.gov?production=P15ic,filename~st_physics,runnumber=&runnumber;,filetype=daq_reco_Mudst,storage!=HPSS" />
+  <!--  <output fromScratch="*picoDst.root" toURL="file:/star/u/zamiller/run14NPE/PicoProd/" /> -->
+
+  <Generator>
+    <Location>/star/u/zamiller/run14NPE/report/</Location>
+    <ScriptLocation>/star/u/zamiller/run14NPE/csh/</ScriptLocation>
+    <ListLocation>/star/u/zamiller/run14NPE/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*purity.root" toURL="file:/star/u/zamiller/run14NPE/PurityProd/" />
+</job>
+
+
+

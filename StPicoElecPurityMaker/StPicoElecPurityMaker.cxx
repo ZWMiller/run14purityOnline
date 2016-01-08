@@ -21,8 +21,8 @@
 #include<iostream>
 #include<fstream>
 #include "mBadRunList.h"
-
-
+#include "StBTofUtil/tofPathLength.hh"
+#define USHRT_MAX 65535
 
 Bool_t fillhistflag=1;
 ofstream runidfiles;
@@ -113,75 +113,77 @@ Int_t StPicoElecPurityMaker::Finish() {
 void StPicoElecPurityMaker::DeclareHistograms() {
 
   fout->cd();
+  for(int tr=0; tr<numTrigs; tr++)
+  {
+    hNEvents[tr] = new TH1F(Form("hNEvents_%i",tr),"number of events: 0 for total and 2 for MBs events", 10, 0, 10 );
+    htriggerindex[tr] =new TH1F(Form("htriggerindex_%i",tr),"triggerindex", 25,0,25);
+    mVz_vpd[tr] = new TH1F(Form("vz_vpd_%i",tr),"VZ_VPD distribution (cm)",400,-200,200);
+    mVz_tpc[tr] = new TH1F(Form("vz_tpc_%i",tr),"the Vz_TPC distribution (cm) ",400,-200,200);
+    mVz_vpdtpc[tr] = new TH2F(Form("Vz_vpdtpc_%i",tr),"VertexZ: VPD VS TPC;TPC;VPD;", 400,-200,200,400,-200,200);
+    mdVz[tr] = new TH1F(Form("dVz_%i",tr),"VertexZ 'TPC-VPD' (cm)", 400,-200,200);
+    mdVz_tpcVz[tr] = new TH2F(Form("dVz_tpcVz_%i",tr),"VertexZ 'TPC-VPD vs TPC' (cm);VZtpc; VZ(tpc-vpd)",400,-200,200,200,-100,100);
+    mVxy[tr] = new TH2F(Form("vxy_%i",tr),"Vertex: Vy Vs Vx distribution (cm);vx;vy; ",200,-10,10,200,-10,10);
+    mVRvsVZ[tr] = new TH2F(Form("VRvsVZ_%i",tr),"Vertex: VR vs VZ  (cm);VZ;VR; ", 400, -200, 200,200,0,20);
 
-  hNEvents   = new TH1F("hNEvents","number of events: 0 for total and 2 for MBs events", 10, 0, 10 );
-  htriggerindex =new TH1F("htriggerindex","triggerindex", 25,0,25);
-  mVz_vpd     = new TH1F("vz_vpd", "VZ_VPD distribution (cm)",400,-200,200);
-  mVz_tpc     = new TH1F("vz_tpc","the Vz_TPC distribution (cm) ",400,-200,200);
-  mVz_vpdtpc  = new TH2F("Vz_vpdtpc","VertexZ: VPD VS TPC;TPC;VPD;", 400,-200,200,400,-200,200);
-  mdVz        = new TH1F("dVz", "VertexZ 'TPC-VPD' (cm)", 400,-200,200);
-  mdVz_tpcVz  = new TH2F("dVz_tpcVz","VertexZ 'TPC-VPD vs TPC' (cm);VZtpc; VZ(tpc-vpd)",400,-200,200,200,-100,100);
-  mVxy        = new TH2F("vxy","Vertex: Vy Vs Vx distribution (cm);vx;vy; ",200,-10,10,200,-10,10);
-  mVRvsVZ    = new TH2F("VRvsVZ","Vertex: VR vs VZ  (cm);VZ;VR; ", 400, -200, 200,200,0,20);
+    mRanking_nPtrks[tr] =new TH2F(Form("Ranking_nPtrks_%i",tr),"Ranking Vs nPrimaryTracks;nprimarytrks; ranking;",200,0,2000,100,-10,10);
+    mnPtrks_nGtrks[tr] =new TH2F(Form("nPtrks_nGtrks_%i",tr),"nPrimarytrks_nGlobaltrks;nglobaltrks;nprimarytrks;",500,0,5000,200,0,2000);
 
-  mRanking_nPtrks=new TH2F("Ranking_nPtrks","Ranking Vs nPrimaryTracks;nprimarytrks; ranking;",200,0,2000,100,-10,10);
-  mnPtrks_nGtrks=new TH2F("nPtrks_nGtrks","nPrimarytrks_nGlobaltrks;nglobaltrks;nprimarytrks;",500,0,5000,200,0,2000);
+    mnRefMult_nGRefMult[tr] =new TH2F(Form("nRefMult_nGRefMult_%i",tr),"nRefMult_nGRefMult;nGRefMult;nRefmult;",200,0,1000,200,0,1000);
+    mnRefMult_nPtrks[tr] =new TH2F(Form("nRefMult_nPtrks_%i",tr),"nRefMult_nPrimarytrks;nprimarytrks;nRefmult;",200,0,2000,200,0,1000);
+    mnRefMult_nGtrks[tr] =new TH2F(Form("nRefMult_nGtrks_%i",tr),"nRefMult_nGlobaltrks;nglobaltrks;nRefmult;",250,0,5000,200,0,1000);
 
-  mnRefMult_nGRefMult=new TH2F("nRefMult_nGRefMult","nRefMult_nGRefMult;nGRefMult;nRefmult;",200,0,1000,200,0,1000);
-  mnRefMult_nPtrks=new TH2F("nRefMult_nPtrks","nRefMult_nPrimarytrks;nprimarytrks;nRefmult;",200,0,2000,200,0,1000);
-  mnRefMult_nGtrks=new TH2F("nRefMult_nGtrks","nRefMult_nGlobaltrks;nglobaltrks;nRefmult;",250,0,5000,200,0,1000);
+    mnGRefMult_nPtrks[tr] =new TH2F(Form("nGRefMult_nPtrks_%i",tr),"nGRefMult_nPrimarytrks;nprimarytrks;nGRefmult;",200,0,2000,200,0,1000);
+    mnGRefMult_nGtrks[tr] =new TH2F(Form("nGRefMult_nGtrks_%i",tr),"nGRefMult_nGlobaltrks;nglobaltrks;nGRefmult;",250,0,5000,200,0,1000);
 
-  mnGRefMult_nPtrks=new TH2F("nGRefMult_nPtrks","nGRefMult_nPrimarytrks;nprimarytrks;nGRefmult;",200,0,2000,200,0,1000);
-  mnGRefMult_nGtrks=new TH2F("nGRefMult_nGtrks","nGRefMult_nGlobaltrks;nglobaltrks;nGRefmult;",250,0,5000,200,0,1000);
-
-  mnPtrks_nTofHits=new TH2F("nPtrks_nTofHits","nPrimarytrks_nTofHits;ntofhits;nprimarytrks;",250,0,2000,200,0,2000);
-  mnPtrks_nMtdHits=new TH2F("nPtrks_nMtdHits","nPrimarytrks_nMtdHits;nmtdhits;nprimarytrks;",50,0,50,500,0,2000);
-  mnTofHits_nMtdHits=new TH2F("nTofHits_nMtdHits","nTofHits_nMtdHits;nmtdhits;ntofhits;",50,0,50,200,0,2000);
-  mnTofMatch_nTofHits=new TH2F("nTofMatch_nTofHits","nTofMatch_nTofHits;ntofhits;ntofmatch;",300,0,1500,300,0,1500);
-
-
-  mNptracks    = new TH1F("Nptracks","#primary tracks",200,0,2000);    
-  mNgtracks    = new TH1F("Ngtracks","# global tracks ",200,0,5000);    
-
-  mtrketa_pt  = new TH2F("trketa_pt", "trketa_pt; pt; eta;", 200,0,20,200,-2,2);
-  mtrkphi_pt  = new TH2F("trkphi_pt","trkphi_pt; pt; phi;",200,0,20,200,0,6.3);
-
-  mtrkpt      = new TH1F("trkpt","the pt distribution of all tracks",200,0,20);
-  mtrketa     = new TH1F("trketa","eta ",200,-2,2);
-  mtrkphi     = new TH1F("trkphi","the phi distribution of all tracks",200,0,6.3);
-
-  mnsigmaPI_Pt   = new TH2F("nsigmaPI_Pt", "nsigmapion vs Pt of all tracks; Pt; nsigmaPI;",400,0,20,200,-20,20);
-  mnsigmaP_Pt   = new TH2F("nsigmaP_Pt", "nsigmaproton vs Pt of all tracks; Pt; nsigmaP;",400,0,20,200,-20,20);
-  mnsigmaK_Pt   = new TH2F("nsigmaK_Pt", "nsigmaK vs Pt of all tracks; Pt; nsigmaK;",400,0,20,200,-20,20);
-  mnsigmaE_Pt   = new TH2F("nsigmaE_Pt", "nsigmaE vs Pt of all tracks; Pt; nsigmaE;",400,0,20,200,-20,20);
-
-  mnsigmaPI   = new TH1F("nsigmaPI", "nsigmapion of all tracks",200,-20,20);
-  mnsigmaK    = new TH1F("nsigmaK", "nsigmaKaon of all tracks",200,-20,20);
-  mnsigmaE    = new TH1F("nsigmaE", "nsigmaElectron of all tracks",200,-20,20);
-  mnsigmaP    = new TH1F("nsigmaP", "nsigmaProton of all tracks",200,-20.,20.);
-
-  mdedx_Pt        = new TH2F("Dedx_Pt","dedx(keV/cm) vs Pt; Pt; Dedx;",200,-20,20,250,0,10);
-  minvsBeta_Pt  = new TH2F("invsBeta_Pt","1/Beta vs Pt; Pt; 1/beta;",300,0,6,200,0.90,1.12);
-  mtofM2_Pt     = new TH2F("tofM2_Pt", "tofM2 vs momentum; P; tofM2;",200,0,20,200,-0.5,4.5);
+    mnPtrks_nTofHits[tr] =new TH2F(Form("nPtrks_nTofHits_%i",tr),"nPrimarytrks_nTofHits;ntofhits;nprimarytrks;",250,0,2000,200,0,2000);
+    mnPtrks_nMtdHits[tr] =new TH2F(Form("nPtrks_nMtdHits_%i",tr),"nPrimarytrks_nMtdHits;nmtdhits;nprimarytrks;",50,0,50,500,0,2000);
+    mnTofHits_nMtdHits[tr] =new TH2F(Form("nTofHits_nMtdHits_%i",tr),"nTofHits_nMtdHits;nmtdhits;ntofhits;",50,0,50,200,0,2000);
+    mnTofMatch_nTofHits[tr] =new TH2F(Form("nTofMatch_nTofHits_%i",tr),"nTofMatch_nTofHits;ntofhits;ntofmatch;",300,0,1500,300,0,1500);
 
 
-  mdedxvsBeta      = new TH2F("ndedxvsBeta","de/dX vs 1/Beta; ",200,0.90,1.12,250,0,10);
-  mnSigmaEvsBeta   = new TH2F("nSigmaEvsBeta","nSigmaE vs 1/Beta; ",200,0.90,1.12,50,-15,15);
-  mnSigmaPIvsBeta  = new TH2F("nSigmaPIvsBeta","nSigmaPI vs 1/Beta; ",200,0.90,1.12,50,-15,15);
-  mnSigmaKvsBeta   = new TH2F("nSigmaKvsBeta","nSigmaK vs 1/Beta; ",200,0.90,1.12,50,-15,15);
-  mnSigmaPvsBeta   = new TH2F("nSigmaPvsBeta","nSigmaP vs 1/Beta; ",200,0.90,1.12,50,-15,15);
-  mtofm2vsBeta      = new TH2F("ntofm2vsBeta","tofM2 vs 1/Beta; ",200,0.90,1.12,200,-0.5,4.5);
+    mNptracks[tr] = new TH1F(Form("Nptracks_%i",tr),"#primary tracks",200,0,2000);    
+    mNgtracks[tr] = new TH1F(Form("Ngtracks_%i",tr),"# global tracks ",200,0,5000);    
 
-  mtoftray_localY = new TH2F("toftray_localY","localY VS toftray; tray; localY;",120,0,120,100,-4,4);
-  mtoftray_localZ = new TH2F("toftray_localZ","localZ VS toftray; tray; localZ;",120,0,120,100,-4,4);
-  //mtofhitPosXYZ   = new TH3F("tofhitPosXYZ","tofhitPosXYZ",400,-200,200,400,-200,200,400,-200,200);
-  mtoftray_matchflag = new TH2F("toftray_matchflag","toftray_matchflag;tofTray; tofmatchflag;",120,0,120,4,0,4);
-  mtoftray_module = new TH2F("toftray_module","toftray_module;tofTray; module",120,0,120,40,0,40);
+    mtrketa_pt[tr] = new TH2F(Form("trketa_pt_%i",tr),"trketa_pt; pt; eta;", 200,0,20,200,-2,2);
+    mtrkphi_pt[tr] = new TH2F(Form("trkphi_pt_%i",tr),"trkphi_pt; pt; phi;",200,0,20,200,0,6.3);
 
-  //---------------------mtd------------------------
-  mmtdBeta_Pt   = new TH2F("mtdBeta_Pt","mtdBeta VS Pt; Pt (GeV/c); mtdBeta;",200,0,20,200,0.95,1.12);
-  mmtdBeta_channel   = new TH2F("mtdBeta_channel","mtdBeta_channel; channel; mtdbeta;",300,0,1800,300,0.95,1.12);
+    mtrkpt[tr] = new TH1F(Form("trkpt_%i",tr),"the pt distribution of all tracks",200,0,20);
+    mtrketa[tr] = new TH1F(Form("trketa_%i",tr),"eta ",200,-2,2);
+    mtrkphi[tr] = new TH1F(Form("trkphi_%i",tr),"the phi distribution of all tracks",200,0,6.3);
 
+    mnsigmaPI_Pt[tr] = new TH2F(Form("nsigmaPI_Pt_%i",tr),"nsigmapion vs Pt of all tracks; Pt; nsigmaPI;",400,0,20,200,-20,20);
+    mnsigmaP_Pt[tr] = new TH2F(Form("nsigmaP_Pt_%i",tr),"nsigmaproton vs Pt of all tracks; Pt; nsigmaP;",400,0,20,200,-20,20);
+    mnsigmaK_Pt[tr] = new TH2F(Form("nsigmaK_Pt_%i",tr),"nsigmaK vs Pt of all tracks; Pt; nsigmaK;",400,0,20,200,-20,20);
+    mnsigmaE_Pt[tr] = new TH2F(Form("nsigmaE_Pt_%i",tr),"nsigmaE vs Pt of all tracks; Pt; nsigmaE;",400,0,20,200,-20,20);
+
+    mnsigmaPI[tr] = new TH1F(Form("nsigmaPI_%i",tr),"nsigmapion of all tracks",200,-20,20);
+    mnsigmaK[tr] = new TH1F(Form("nsigmaK_%i",tr),"nsigmaKaon of all tracks",200,-20,20);
+    mnsigmaE[tr] = new TH1F(Form("nsigmaE_%i",tr),"nsigmaElectron of all tracks",200,-20,20);
+    mnsigmaP[tr] = new TH1F(Form("nsigmaP_%i",tr),"nsigmaProton of all tracks",200,-20.,20.);
+
+    mdedx_Pt[tr] = new TH2F(Form("Dedx_Pt_%i",tr),"dedx(keV/cm) vs Pt; Pt; Dedx;",200,-20,20,250,0,10);
+    minvsBeta_Pt[tr] = new TH2F(Form("invsBeta_Pt_%i",tr),"1/Beta vs Pt; Pt; 1/beta;",300,0,6,200,0.90,1.12);
+    mtofM2_Pt[tr] = new TH2F(Form("tofM2_Pt_%i",tr),"tofM2 vs momentum; P; tofM2;",200,0,20,200,-0.5,4.5);
+
+    mdedxvsBeta[tr] = new TH2F(Form("ndedxvsBeta_%i",tr),"de/dX vs 1/Beta; ",200,0.90,1.12,250,0,10);
+    mnSigmaEvsBeta[tr] = new TH2F(Form("nSigmaEvsBeta_%i",tr),"nSigmaE vs 1/Beta; ",200,0.90,1.12,50,-15,15);
+    mnSigmaPIvsBeta[tr] = new TH2F(Form("nSigmaPIvsBeta_%i",tr),"nSigmaPI vs 1/Beta; ",200,0.90,1.12,50,-15,15);
+    mnSigmaKvsBeta[tr] = new TH2F(Form("nSigmaKvsBeta_%i",tr),"nSigmaK vs 1/Beta; ",200,0.90,1.12,50,-15,15);
+    mnSigmaPvsBeta[tr] = new TH2F(Form("nSigmaPvsBeta_%i",tr),"nSigmaP vs 1/Beta; ",200,0.90,1.12,50,-15,15);
+    mtofm2vsBeta[tr] = new TH2F(Form("ntofm2vsBeta_%i",tr),"tofM2 vs 1/Beta; ",200,0.90,1.12,200,-0.5,4.5);
+
+    mtoftray_localY[tr] = new TH2F(Form("toftray_localY_%i",tr),"localY VS toftray; tray; localY;",120,0,120,100,-4,4);
+    mtoftray_localZ[tr] = new TH2F(Form("toftray_localZ_%i",tr),"localZ VS toftray; tray; localZ;",120,0,120,100,-4,4);
+    //mtofhitPosXYZ[tr] = new TH3F(Form("tofhitPosXYZ_%i",tr),"tofhitPosXYZ",400,-200,200,400,-200,200,400,-200,200);
+    mtoftray_matchflag[tr] = new TH2F(Form("toftray_matchflag_%i",tr),"toftray_matchflag;tofTray; tofmatchflag;",120,0,120,4,0,4);
+    mtoftray_module[tr] = new TH2F(Form("toftray_module_%i",tr),"toftray_module;tofTray; module",120,0,120,40,0,40);
+
+    //---------------------mtd------------------------
+    mmtdBeta_Pt[tr] = new TH2F(Form("mtdBeta_Pt_%i",tr),"mtdBeta VS Pt; Pt (GeV/c); mtdBeta;",200,0,20,200,0.95,1.12);
+    mmtdBeta_channel[tr] = new TH2F(Form("mtdBeta_channel_%i",tr),"mtdBeta_channel; channel; mtdbeta;",300,0,1800,300,0.95,1.12);
+
+    hNTracks[tr] = new TH1F(Form("hNTracks_%i",tr),"Number of Tracks before (0) and after cuts (2);",10,0,10);
+  }
 }// er chen
 
 //----------------------------------------------------------------------------- 
@@ -203,10 +205,8 @@ Int_t StPicoElecPurityMaker::Make() {
     return kStWarn;
   }
 
-
   StPicoEvent* event=mPicoDst->event();
   //=================zaochen add====================
-  hNEvents->Fill(0);
   if(!event) return kStOK;
   //=================event selection================
   int runId = event->runId();
@@ -214,13 +214,22 @@ Int_t StPicoElecPurityMaker::Make() {
     if(runId==mBadRuns[i]) return kStOK;
   }
 
-  if( ! event->isMinBias()) return kStOK; // If not MinBias, get out of loop
-  //if( ! isBHT1( event ) ) return kStOK;
+  trig = 99;
+  if( event->isMinBias()) FillHistograms(0,event); // Decide what type of trigger you have, use to select what histos to fill
+  if( isBHT1( event ) )   FillHistograms(1,event);
+  if( isBHT2( event ) )   FillHistograms(2,event);
+  if( isBHT3( event ) )   FillHistograms(3,event);
+  if( trig == 99 ) return kStOK; // if no trigger match, throw out event
 
+  return kStOK;
+}
+
+Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
+{
   //=================event selection================
-
+  hNEvents[trig]->Fill(0);
   if(! passEventCuts(event) ) return kStOK;
-  hNEvents->Fill(2);
+  hNEvents[trig]->Fill(2);
 
   if(fillhistflag){	
 
@@ -242,7 +251,7 @@ Int_t StPicoElecPurityMaker::Make() {
   //	if(triggerWord>>19 & 0x1
   Int_t triggerWORD=event->triggerWord();
   for(Int_t i=0; i<25; i++){
-    if( triggerWORD>>i & 0x1 ) htriggerindex->Fill(i);
+    if( triggerWORD>>i & 0x1 ) htriggerindex[trig]->Fill(i);
 
   }
 
@@ -271,13 +280,13 @@ Int_t StPicoElecPurityMaker::Make() {
   //if(fabs(dvz) < dvZcut)  return kStOK;
 
   if(fillhistflag){
-    mVz_tpc->Fill(vztpc);
-    mVz_vpd->Fill(vzvpd);
-    mdVz->Fill(dvz);  
-    mVz_vpdtpc->Fill(vztpc,vzvpd);
-    mdVz_tpcVz->Fill(vztpc,dvz);
-    mVxy->Fill( event->primaryVertex().x(), event->primaryVertex().y() );
-    mVRvsVZ->Fill(vztpc, vr);
+    mVz_tpc[trig]->Fill(vztpc);
+    mVz_vpd[trig]->Fill(vzvpd);
+    mdVz[trig]->Fill(dvz);  
+    mVz_vpdtpc[trig]->Fill(vztpc,vzvpd);
+    mdVz_tpcVz[trig]->Fill(vztpc,dvz);
+    mVxy[trig]->Fill( event->primaryVertex().x(), event->primaryVertex().y() );
+    mVRvsVZ[trig]->Fill(vztpc, vr);
   }//
 
 
@@ -301,8 +310,8 @@ Int_t StPicoElecPurityMaker::Make() {
   //----------track information------------------------  
   Int_t numberoftracks = mPicoDst->numberOfTracks();
   if(fillhistflag){	
-    mNptracks->Fill(numberoftracks);
-    mNgtracks->Fill(NGtrks);
+    mNptracks[trig]->Fill(numberoftracks);
+    mNgtracks[trig]->Fill(NGtrks);
   }//
 
   //tVzTPC=event->primaryVertex().z()
@@ -339,22 +348,25 @@ Int_t StPicoElecPurityMaker::Make() {
       */
 
     // Check if pass track quality && eID, if fail either... skip it
-    if(!track->isHFTTrack() || !passGoodTrack(track) || !passEIDCuts(event, track)) continue;
+    hNTracks[trig]->Fill(0);
+    if(!track->isHFTTrack() || !passGoodTrack(event, track) || !passEIDCuts(event, track)) continue;
+    hNTracks[trig]->Fill(2);
 
     Double_t meta,mpt,mphi,mcharge,mdedx;
     //change to global track
-    meta=track->pMom().pseudoRapidity();
+    meta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
     if(track->pMom().mag()!=0) Nprimarytracks++;
-    mphi=RotatePhi(track->pMom().phi());
-    mpt=track->pMom().perp();
+    mphi=RotatePhi(track->gMom(event->primaryVertex(),event->bField()).phi());
+    mpt=track->gMom(event->primaryVertex(),event->bField()).perp();
     mcharge=track->charge();
     mdedx=track->dEdx();
-    if(mcharge==0||meta==0||mphi==0||mdedx==0) continue;
+    if(mcharge==0||meta==0||mphi==0||mdedx==0/*||track->pMom().mag()!=0*/) continue; //remove neutral, untracked, or primary tracks
+    hNTracks[trig]->Fill(4);
     if(track->isHFTTrack()){
       nhftmatchcount++;
     }
 
-    Float_t mmomentum=track->pMom().mag();
+    Float_t mmomentum=track->gMom(event->primaryVertex(),event->bField()).mag();
     Double_t rationhits = 0.00;
     rationhits=(double)track->nHitsFit()/track->nHitsMax();
     // cout<<"track->nHitsMax()="<<track->nHitsMax()<<"track->nHitsFit()"<<track->nHitsFit()<<endl;
@@ -363,23 +375,23 @@ Int_t StPicoElecPurityMaker::Make() {
     Double_t nsigk=track->nSigmaKaon();
     Double_t nsigp=track->nSigmaProton();	     
     if(fillhistflag){
-      mtrkpt->Fill( mpt );
-      mtrketa->Fill( meta );
-      mtrkphi->Fill( mphi );
-      //   mtrketaphi->Fill( mphi,meta );
-      mnsigmaPI->Fill( track->nSigmaPion() );
-      mnsigmaP->Fill(  track->nSigmaProton() );
-      mnsigmaK->Fill(  track->nSigmaKaon() );
-      mnsigmaE->Fill(  track->nSigmaElectron() );
+      mtrkpt[trig]->Fill( mpt );
+      mtrketa[trig]->Fill( meta );
+      mtrkphi[trig]->Fill( mphi );
+      //   mtrketaphi[trig]->Fill( mphi,meta );
+      mnsigmaPI[trig]->Fill( track->nSigmaPion() );
+      mnsigmaP[trig]->Fill(  track->nSigmaProton() );
+      mnsigmaK[trig]->Fill(  track->nSigmaKaon() );
+      mnsigmaE[trig]->Fill(  track->nSigmaElectron() );
 
-      mtrketa_pt->Fill(mpt*mcharge,meta);
-      mtrkphi_pt->Fill(mpt*mcharge,mphi);
+      mtrketa_pt[trig]->Fill(mpt*mcharge,meta);
+      mtrkphi_pt[trig]->Fill(mpt*mcharge,mphi);
 
-      mdedx_Pt->Fill(mpt*mcharge,track->dEdx());
-      mnsigmaPI_Pt->Fill(mpt,track->nSigmaPion());
-      mnsigmaP_Pt->Fill(mpt,track->nSigmaProton());
-      mnsigmaE_Pt->Fill(mpt,track->nSigmaElectron());
-      mnsigmaK_Pt->Fill(mpt,track->nSigmaKaon());
+      mdedx_Pt[trig]->Fill(mpt*mcharge,track->dEdx());
+      mnsigmaPI_Pt[trig]->Fill(mpt,track->nSigmaPion());
+      mnsigmaP_Pt[trig]->Fill(mpt,track->nSigmaProton());
+      mnsigmaE_Pt[trig]->Fill(mpt,track->nSigmaElectron());
+      mnsigmaK_Pt[trig]->Fill(mpt,track->nSigmaKaon());
 
     }
 
@@ -388,27 +400,36 @@ Int_t StPicoElecPurityMaker::Make() {
 
     Int_t tofpidid=track->bTofPidTraitsIndex();
     if(tofpidid>0){
+
       ntofmatchcount++;
       StPicoBTofPidTraits* btofpidtrait=(StPicoBTofPidTraits*) mPicoDst->btofPidTraits(tofpidid);
 
       //------tof information start----------
-      Float_t tofbeta=btofpidtrait->btofBeta();
+      Float_t beta=btofpidtrait->btofBeta();
+      StPhysicalHelixD helix = track->helix();
+      if(beta<1e-4||beta>=(USHRT_MAX-1)/20000){
+        Float_t tof = btofpidtrait->btof();
+        StThreeVectorF btofHitPos = btofpidtrait->btofHitPos();
+        float L = tofPathLength(&vertexPos, &btofHitPos, helix.curvature()); 
+        if(tof>0) beta = L/(tof*(c_light/1.0e9));
+      }
+      Float_t tofbeta = (UShort_t)(beta*20000);
       Double_t tofm2=mmomentum*mmomentum*( 1.0/(tofbeta*tofbeta)-1.0);
       if(fillhistflag){		   
-        minvsBeta_Pt->Fill(mpt,1/tofbeta);
+        minvsBeta_Pt[trig]->Fill(mpt,1/tofbeta);
         if(tofbeta>0){
-          mtofM2_Pt->Fill(mpt,tofm2);
+          mtofM2_Pt[trig]->Fill(mpt,tofm2);
         }
 
         // For Purity
 
         Float_t tofbeta=btofpidtrait->btofBeta();
-        mdedxvsBeta    ->Fill(tofbeta, track->dEdx());
-        mnSigmaEvsBeta ->Fill(tofbeta, track->nSigmaElectron());
-        mnSigmaPIvsBeta->Fill(tofbeta, track->nSigmaPion());
-        mnSigmaKvsBeta ->Fill(tofbeta, track->nSigmaKaon());
-        mnSigmaPvsBeta ->Fill(tofbeta, track->nSigmaProton());
-        mtofm2vsBeta   ->Fill(tofbeta, tofm2);
+        mdedxvsBeta    [trig]->Fill(tofbeta, track->dEdx());
+        mnSigmaEvsBeta [trig]->Fill(tofbeta, track->nSigmaElectron());
+        mnSigmaPIvsBeta[trig]->Fill(tofbeta, track->nSigmaPion());
+        mnSigmaKvsBeta [trig]->Fill(tofbeta, track->nSigmaKaon());
+        mnSigmaPvsBeta [trig]->Fill(tofbeta, track->nSigmaProton());
+        mtofm2vsBeta   [trig]->Fill(tofbeta, tofm2);
       }
 
       Int_t tofcellid=   btofpidtrait->btofCellId();
@@ -421,10 +442,10 @@ Int_t StPicoElecPurityMaker::Make() {
       // Float_t tofhitPosy = btofpidtrait->btofHitPos().y();
       // Float_t tofhitPosz = btofpidtrait->btofHitPos().z();
       if(fillhistflag){
-        mtoftray_localY->Fill(toftray,toflocaly);
-        mtoftray_localZ->Fill(toftray,toflocalz);
-        mtoftray_matchflag->Fill(toftray,btofpidtrait->btofMatchFlag());
-        mtoftray_module->Fill(toftray,tofmodule);
+        mtoftray_localY[trig]->Fill(toftray,toflocaly);
+        mtoftray_localZ[trig]->Fill(toftray,toflocalz);
+        mtoftray_matchflag[trig]->Fill(toftray,btofpidtrait->btofMatchFlag());
+        mtoftray_module[trig]->Fill(toftray,tofmodule);
 
       }//
 
@@ -450,12 +471,12 @@ Int_t StPicoElecPurityMaker::Make() {
       Int_t mtdbgcell=mtdbackleg*12+mtdcell;
       Int_t mtdchannel=(mtdbackleg-1)*60+(mtdmodule-1)*12+mtdcell;// (backleg-1) * 60 + (module-1) * 12 + cell
       if(fillhistflag){
-        mmtdBeta_Pt->Fill(mpt,mtdbeta);
-        mmtdBeta_channel->Fill(mtdchannel,mtdbeta);
+        mmtdBeta_Pt[trig]->Fill(mpt,mtdbeta);
+        mmtdBeta_channel[trig]->Fill(mtdchannel,mtdbeta);
       }//
     }
 
-    if(Ismuontrack(track)) {
+    if(Ismuontrack(event, track)) {
       nmuons++; 
 
     }
@@ -485,18 +506,18 @@ Int_t StPicoElecPurityMaker::Make() {
 
   if(fillhistflag){
     //event information QA
-    mRanking_nPtrks->Fill(Nptrks,Ranking);
-    mnPtrks_nGtrks->Fill(NGtrks,Nptrks);
-    mnRefMult_nPtrks->Fill(Nptrks,NRefmultPos+NRefmultNeg);
-    mnRefMult_nGtrks->Fill(NGtrks,NRefmultPos+NRefmultNeg);
-    mnGRefMult_nPtrks->Fill(Nptrks, NGnremult);
-    mnGRefMult_nGtrks->Fill(NGtrks, NGnremult);	   
+    mRanking_nPtrks[trig]->Fill(Nptrks,Ranking);
+    mnPtrks_nGtrks[trig]->Fill(NGtrks,Nptrks);
+    mnRefMult_nPtrks[trig]->Fill(Nptrks,NRefmultPos+NRefmultNeg);
+    mnRefMult_nGtrks[trig]->Fill(NGtrks,NRefmultPos+NRefmultNeg);
+    mnGRefMult_nPtrks[trig]->Fill(Nptrks, NGnremult);
+    mnGRefMult_nGtrks[trig]->Fill(NGtrks, NGnremult);	   
 
-    mnRefMult_nGRefMult->Fill(NGnremult,NRefmultPos+NRefmultNeg);
-    mnPtrks_nMtdHits->Fill(Nmtdhits,Nptrks);
-    mnPtrks_nTofHits->Fill(ntofmatchcount,Nptrks);
-    mnTofHits_nMtdHits->Fill(Nmtdhits,ntofmatchcount);                
-    mnTofMatch_nTofHits->Fill(ntofmatchcount,Ntofmatch);  	
+    mnRefMult_nGRefMult[trig]->Fill(NGnremult,NRefmultPos+NRefmultNeg);
+    mnPtrks_nMtdHits[trig]->Fill(Nmtdhits,Nptrks);
+    mnPtrks_nTofHits[trig]->Fill(ntofmatchcount,Nptrks);
+    mnTofHits_nMtdHits[trig]->Fill(Nmtdhits,ntofmatchcount);                
+    mnTofMatch_nTofHits[trig]->Fill(ntofmatchcount,Ntofmatch);  	
 
     //------------------------------------------------------//
     //---------- make run by run QA of ---------------------//
@@ -530,13 +551,7 @@ Int_t StPicoElecPurityMaker::Make() {
   //  mPicoDst->printTracks();
 
   return kStOK;
-}//end of main fucntion
-
-
-
-
-
-
+}//end of main filling fucntion
 
 //=====================ZAOCHEN'S FUNCTION=======================================
 
@@ -567,11 +582,11 @@ bool StPicoElecPurityMaker::isBHT3(StPicoEvent *event)
 
 //------------------------------------------------------------- 
 
-Bool_t StPicoElecPurityMaker::passGoodTrack(StPicoTrack* track)
+Bool_t StPicoElecPurityMaker::passGoodTrack(StPicoEvent* event, StPicoTrack* track)
 {
   double fithitfrac, chargeq, fhitsdEdx, fhitsFit,feta; 
-  double pt = track->pMom().perp();
-  feta=track->pMom().pseudoRapidity();
+  double pt = track->gMom(event->primaryVertex(),event->bField()).perp();
+  feta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
   fhitsFit = track->nHitsFit();
   fithitfrac=fhitsFit/track->nHitsMax();
   fhitsdEdx = track->nHitsDedx();
@@ -605,11 +620,11 @@ Bool_t StPicoElecPurityMaker::passEIDCuts(StPicoEvent* event, StPicoTrack* track
   if(emcpidtraitsid>=0){
     StPicoEmcPidTraits* emcpidtraits=(StPicoEmcPidTraits*) mPicoDst->emcPidTraits(emcpidtraitsid);
 
-    mpoe = track->pMom().mag()/emcpidtraits->e();
+    mpoe = track->gMom(event->primaryVertex(),event->bField()).mag()/emcpidtraits->e();
   }
   else mpoe = 0.0; // if no BEMC, set value = 0
 
-  mpt  = track->pMom().perp();
+  mpt  = track->gMom(event->primaryVertex(),event->bField()).perp();
   mdca = dcamag;
 
   // Get TOF Infor
@@ -635,10 +650,10 @@ Bool_t StPicoElecPurityMaker::passEIDCuts(StPicoEvent* event, StPicoTrack* track
 
 //-------------------------------------------------------------
 
-Bool_t StPicoElecPurityMaker::Ismuontrack(StPicoTrack* track)
+Bool_t StPicoElecPurityMaker::Ismuontrack(StPicoEvent* event, StPicoTrack* track)
 {
   double pt;
-  pt=track->pMom().perp();
+  pt=track->gMom(event->primaryVertex(),event->bField()).perp();
   Int_t mtdpid=track->mtdPidTraitsIndex();
   if(mtdpid<=0)return false;
   StPicoMtdPidTraits* mtdpidtrait=(StPicoMtdPidTraits*) mPicoDst->mtdPidTraits(mtdpid);      
@@ -672,7 +687,8 @@ Double_t StPicoElecPurityMaker::RotatePhi(Double_t phi) const
 //===================================================================
 
 void StPicoElecPurityMaker::SetDefaultCuts()
-{
+{ 
+  numTrigs = 4;
   setNSigECuts(-1.5,3.0);
   setNSigPCuts(-20,20);
   setNSigKCuts(-20,20);

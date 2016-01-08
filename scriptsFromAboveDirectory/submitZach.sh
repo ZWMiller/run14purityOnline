@@ -1,6 +1,6 @@
 #!/bin/bash
-
-for RUN in `cat List/testList4.list`
+rm -rf /star/u/zamiller/run14NPE/LocalLibraries_hists.*
+for RUN in `cat List/testListJan4.list`
 do
      echo $RUN
      #cd Submit/$day/$RUN

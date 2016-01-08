@@ -16,9 +16,9 @@ class StPicoElecPurityMaker : public StMaker {
  public:
      StPicoElecPurityMaker(const char *name, StPicoDstMaker *picoMaker, const char *outName);
      virtual ~StPicoElecPurityMaker();
-     Bool_t passGoodTrack(StPicoTrack* ); // ZWM
+     Bool_t passGoodTrack(StPicoEvent*, StPicoTrack* ); // ZWM
      Bool_t passEIDCuts(StPicoEvent*, StPicoTrack* );   // ZWM
-     Bool_t Ismuontrack(StPicoTrack* );
+     Bool_t Ismuontrack(StPicoEvent*, StPicoTrack* );
      Bool_t IspassTOFcuts(StPicoTrack*);
      Bool_t IspassBEMCcuts(StPicoTrack*);
      Bool_t passEventCuts(StPicoEvent*);  // ZWM
@@ -37,6 +37,7 @@ class StPicoElecPurityMaker : public StMaker {
 
      void    DeclareHistograms();
      void    WriteHistograms();
+     Int_t    FillHistograms(Int_t, StPicoEvent*);
 
      void  SetDefaultCuts();               // ZWM
 
@@ -59,6 +60,9 @@ class StPicoElecPurityMaker : public StMaker {
    StPicoDstMaker *mPicoDstMaker;
    StPicoDst      *mPicoDst;
    
+   // Trigger Tracking
+   int numTrigs;
+   int trig;
    // Event cut vars
    float vZcut;
    float dvZcut;
@@ -81,78 +85,79 @@ class StPicoElecPurityMaker : public StMaker {
     //-----event QA-----
 
 
-    TH1F*      hNEvents;
-    TH1F*    	htriggerindex;
-    TH1F*      mVz_vpd;
-    TH1F*      mVz_tpc;
-    TH2F*      mVz_vpdtpc;
-    TH1F*      mdVz;
-    TH2F*      mdVz_tpcVz;
-    TH2F*      mVxy;
-    TH2F*      mVRvsVZ;
+    TH1F*      hNEvents[4];
+    TH1F*    	htriggerindex[4];
+    TH1F*      mVz_vpd[4];
+    TH1F*      mVz_tpc[4];
+    TH2F*      mVz_vpdtpc[4];
+    TH1F*      mdVz[4];
+    TH2F*      mdVz_tpcVz[4];
+    TH2F*      mVxy[4];
+    TH2F*      mVRvsVZ[4];
 
-    TH2F*      mRanking_nPtrks;
-    TH2F*      mnPtrks_nGtrks;
-    TH2F*      mnRefMult_nGRefMult;
-    TH2F*      mnRefMult_nPtrks;
-    TH2F*      mnRefMult_nGtrks;
-    TH2F*      mnGRefMult_nPtrks;
-    TH2F*      mnGRefMult_nGtrks;
+    TH2F*      mRanking_nPtrks[4];
+    TH2F*      mnPtrks_nGtrks[4];
+    TH2F*      mnRefMult_nGRefMult[4];
+    TH2F*      mnRefMult_nPtrks[4];
+    TH2F*      mnRefMult_nGtrks[4];
+    TH2F*      mnGRefMult_nPtrks[4];
+    TH2F*      mnGRefMult_nGtrks[4];
 
-    TH2F*      mnPtrks_nTofHits;
-    TH2F*      mnPtrks_nMtdHits;
+    TH2F*      mnPtrks_nTofHits[4];
+    TH2F*      mnPtrks_nMtdHits[4];
 
-    TH2F*      mnTofHits_nMtdHits;
-    TH2F*      mnTofMatch_nTofHits;
+    TH2F*      mnTofHits_nMtdHits[4];
+    TH2F*      mnTofMatch_nTofHits[4];
     
 
     //---------Track QA----------
     //-------TPC information------
-    TH1F*      mNptracks;
-    TH1F*      mNgtracks;
-    TH1F*      mtrkpt;
-    TH1F*      mtrkphi;
-    TH1F*      mtrketa;
-    TH1F*      mnsigmaK;
-    TH1F*      mnsigmaE;
-    TH1F*      mnsigmaP;
-    TH1F*      mnsigmaPI;
+    TH1F*      mNptracks[4];
+    TH1F*      mNgtracks[4];
+    TH1F*      mtrkpt[4];
+    TH1F*      mtrkphi[4];
+    TH1F*      mtrketa[4];
+    TH1F*      mnsigmaK[4];
+    TH1F*      mnsigmaE[4];
+    TH1F*      mnsigmaP[4];
+    TH1F*      mnsigmaPI[4];
 
-    TH2F*      mtrketaphi;
-    TH2F*      mtrketa_pt;
-    TH2F*      mtrkphi_pt;
-    TH2F*      mdedx_Pt;
+    TH2F*      mtrketaphi[4];
+    TH2F*      mtrketa_pt[4];
+    TH2F*      mtrkphi_pt[4];
+    TH2F*      mdedx_Pt[4];
 
-    TH2F*      mnsigmaPI_Pt;
-    TH2F*      mnsigmaP_Pt;
-    TH2F*      mnsigmaK_Pt;
-    TH2F*      mnsigmaE_Pt;
+    TH2F*      mnsigmaPI_Pt[4];
+    TH2F*      mnsigmaP_Pt[4];
+    TH2F*      mnsigmaK_Pt[4];
+    TH2F*      mnsigmaE_Pt[4];
     //----TPC information end-----
 
     //-----TOF INFORMATION start----
-    TH2F*      minvsBeta_Pt;
-    TH2F*      mtofM2_Pt;
+    TH2F*      minvsBeta_Pt[4];
+    TH2F*      mtofM2_Pt[4];
     //        mp vs nsigmaE
-    TH2F*      mtoftray_localY;
-    TH2F*      mtoftray_localZ;
-    //TH3F*      mtofhitPosXYZ;
-    TH2F*      mtoftray_matchflag;
-    TH2F*      mtoftray_module;
+    TH2F*      mtoftray_localY[4];
+    TH2F*      mtoftray_localZ[4];
+    //TH3F*      mtofhitPosXYZ[4];
+    TH2F*      mtoftray_matchflag[4];
+    TH2F*      mtoftray_module[4];
 
     //----TOF information end----
     
     //---------mtd information-------------
-    TH2F*      mmtdBeta_Pt;
-    TH2F*      mmtdBeta_channel;
+    TH2F*      mmtdBeta_Pt[4];
+    TH2F*      mmtdBeta_channel[4];
  
     // For Purity
-    TH2F*      mnSigmaEvsBeta;
-    TH2F*      mnSigmaPIvsBeta;
-    TH2F*      mnSigmaKvsBeta;
-    TH2F*      mnSigmaPvsBeta;
-    TH2F*      mdedxvsBeta;
-    TH2F*      mtofm2vsBeta;
+    TH2F*      mnSigmaEvsBeta[4];
+    TH2F*      mnSigmaPIvsBeta[4];
+    TH2F*      mnSigmaKvsBeta[4];
+    TH2F*      mnSigmaPvsBeta[4];
+    TH2F*      mdedxvsBeta[4];
+    TH2F*      mtofm2vsBeta[4];
 	
+    TH1F*      hNTracks[4];
     ClassDef(StPicoElecPurityMaker, 1)
 };
 
