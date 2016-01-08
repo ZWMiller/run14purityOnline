@@ -55,6 +55,9 @@ class StPicoElecPurityMaker : public StMaker {
      void   setPoECut(float pEl, float pEh) { poeCutLow = pEl; poeCutHigh = pEh; };
      void   setToFBetaCut(float iB)         { tofInvBetaCut = iB; };
      void   setToFLocalyCut(float lY)       { toflocalyCut = lY; };
+     void   setKaonEnhCut(float kel, float keh) { kaonEnhCutLow = kel; kaonEnhCutHigh = keh; };
+     void   setPionEnhCut(float pel, float peh) { pionEnhCutLow = pel; pionEnhCutHigh = peh; };
+     void   setProtonEnhCut(float pel, float peh) { protonEnhCutLow = pel; protonEnhCutHigh = peh; };
 
   private:
    StPicoDstMaker *mPicoDstMaker;
@@ -76,6 +79,9 @@ class StPicoElecPurityMaker : public StMaker {
    float nSigPLow, nSigPHigh;
    float nSigKLow, nSigKHigh;
    float nSigPiLow, nSigPiHigh;
+   float pionEnhCutLow,pionEnhCutHigh;
+   float protonEnhCutLow,protonEnhCutHigh;
+   float kaonEnhCutLow,kaonEnhCutHigh;
    TString    mOutName;
 
      Int_t   mNBadRuns;       
@@ -158,6 +164,12 @@ class StPicoElecPurityMaker : public StMaker {
     TH2F*      mtofm2vsBeta[4];
 	
     TH1F*      hNTracks[4];
+    TH2F*      mnSigmaE_KEnh_Pt[4];
+    TH2F*      mnSigmaE_PiEnh_Pt[4];
+    TH2F*      mnSigmaE_PEnh_Pt[4];
+    TH2F*      mnSigmaK_KEnh_Pt[4];
+    TH2F*      mnSigmaPi_PiEnh_Pt[4];
+    TH2F*      mnSigmaP_PEnh_Pt[4];
     ClassDef(StPicoElecPurityMaker, 1)
 };
 
