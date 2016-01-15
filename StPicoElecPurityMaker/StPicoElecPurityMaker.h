@@ -58,11 +58,16 @@ class StPicoElecPurityMaker : public StMaker {
      void   setKaonEnhCut(float kel, float keh) { kaonEnhCutLow = kel; kaonEnhCutHigh = keh; };
      void   setPionEnhCut(float pel, float peh) { pionEnhCutLow = pel; pionEnhCutHigh = peh; };
      void   setProtonEnhCut(float pel, float peh) { protonEnhCutLow = pel; protonEnhCutHigh = peh; };
+     void   setDsmAdcCut(int trg, float val) { dsmAdcCut[trg] = val; };
+     float  getDsmAdcCut(int trg)            { return dsmAdcCut[trg]; };
+     
 
   private:
    StPicoDstMaker *mPicoDstMaker;
    StPicoDst      *mPicoDst;
    
+   // dsm adc
+   float dsmAdcCut[4];
    // Trigger Tracking
    int numTrigs;
    int trig;

@@ -670,7 +670,7 @@ Bool_t StPicoElecPurityMaker::passEIDCuts(StPicoEvent* event, StPicoTrack* track
     tofMatchFlag = btofpidtrait->btofMatchFlag(); 
   }
 
-  if( mpt > ePtCut && mdca < dcaCut && mpoe > poeCutLow && mpoe < poeCutHigh && invBeta < tofInvBetaCut && tofMatchFlag > 0 && fabs(toflocaly) < toflocalyCut)
+  if( mdca < dcaCut && mpoe > poeCutLow && mpoe < poeCutHigh && invBeta < tofInvBetaCut && tofMatchFlag > 0 && fabs(toflocaly) < toflocalyCut)
     return true;
   else
     return false;
@@ -729,8 +729,12 @@ void StPicoElecPurityMaker::SetDefaultCuts()
   setPoECut(0.3, 1.5); // 0.3 < p/E < 1.5
   setToFBetaCut(0.3); // 1/B -1 < 0.3
   setToFLocalyCut(1.8); // |tof_localy| < 1.8
-  setKaonEnhCut(0.9,1.1); // 0.1<1/B<1.5 Kaon Species Select
-  setPionEnhCut(0.9,1.1); // 0.1<1/B<1.5 Pion Species Select
-  setProtonEnhCut(0.9,1.1); // 0.1<1/B<1.5 Proton Species Select
+  setKaonEnhCut(0.9,1.1); // 0.9<1/B<1.1 Kaon Species Select
+  setPionEnhCut(0.9,1.1); // 0.9<1/B<1.1 Pion Species Select
+  setProtonEnhCut(0.9,1.1); // 0.9<1/B<1.1 Proton Species Select
+  setDsmAdcCut(0,0.0); // dsmADC cut sets (not in MB): Use getDsmAdcCut(trig) to return value
+  setDsmAdcCut(1,15.); // dsmADC cut sets ()
+  setDsmAdcCut(2,18.); // dsmADC cut sets ()
+  setDsmAdcCut(3,21.); // dsmADC cut sets ()
 }
 
