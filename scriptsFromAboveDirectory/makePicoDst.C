@@ -163,9 +163,9 @@ void makePicoDst(const Int_t runnumber=15094070,
 	outPurityFile.ReplaceAll("MuDst.root","purity.root");
 	
 
-	StPicoAnaTreeMaker *treeMaker = new StPicoAnaTreeMaker(1,outputFile,picoMaker);
-	treeMaker->setTriggerSelection(1); //0-mb, 1-ht, 2-mtd
-	treeMaker->setVzCut(-100,100);
+//	StPicoAnaTreeMaker *treeMaker = new StPicoAnaTreeMaker(1,outputFile,picoMaker);
+//	treeMaker->setTriggerSelection(1); //0-mb, 1-ht, 2-mtd
+//	treeMaker->setVzCut(-100,100);
 	
 	StPicoElecPurityMaker *ePurMaker = new StPicoElecPurityMaker("ana",picoMaker,outPurityFile);
 	//StPicoQAMaker *qaMaker = new StPicoQAMaker("ana",picoMaker,outQAFile);

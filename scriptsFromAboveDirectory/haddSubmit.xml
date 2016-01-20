@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job maxFilesPerProcess="1" filesPerHour="1" fileListSyntax="xrootd" simulateSubmission="false">
+  <command>
+    hadd -k Jan14_PuritySample.root /star/data01/pwg/zamiller/PurityProd/*.root
+  </command>
+
+  <stdout URL="file:/star/data01/pwg/zamiller/PurityProd/haddJan14.out"/>
+  <stderr URL="file:/star/data01/pwg/zamiller/PurityProd/haddJan14.err"/>
+
+  <Generator>
+    <Location>/star/u/zamiller/run14NPE/report/</Location>
+    <ScriptLocation>/star/u/zamiller/run14NPE/csh/</ScriptLocation>
+    <ListLocation>/star/u/zamiller/run14NPE/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="Jan14_PuritySample.root" toURL="file:/star/data01/pwg/zamiller/PurityProd/" />
+</job>
+
+
+

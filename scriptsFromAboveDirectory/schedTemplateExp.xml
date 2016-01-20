@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE note [
-<!ENTITY runnumber "15080014">
+<!ENTITY runnumber "15082060">
 ]>
-<!-- Created on Thu Jan  7 13:12:50 2016 -->
+<!-- Created on Wed Jan 20 16:48:50 2016 -->
 <job maxFilesPerProcess="1" filesPerHour="1" fileListSyntax="xrootd" simulateSubmission="false">
   <command>
     starver SL15c
@@ -18,8 +18,8 @@
     </Package>
   </SandBox>
 
-  <stdout URL="file:/star/u/zamiller/run14NPE/Log/&runnumber;.out"/>
-  <stderr URL="file:/star/u/zamiller/run14NPE/Log/&runnumber;.err"/>
+  <stdout URL="file:/star/data01/pwg/zamiller/PurityProd/Log/&runnumber;.out"/>
+  <stderr URL="file:/star/data01/pwg/zamiller/PurityProd/Log/&runnumber;.err"/>
   <input URL="catalog:star.bnl.gov?production=P15ic,filename~st_physics,runnumber=&runnumber;,filetype=daq_reco_Mudst,storage!=HPSS" />
   <!--  <output fromScratch="*picoDst.root" toURL="file:/star/u/zamiller/run14NPE/PicoProd/" /> -->
 
@@ -29,7 +29,7 @@
     <ListLocation>/star/u/zamiller/run14NPE/list/</ListLocation>
   </Generator>
 
-  <output fromScratch="*purity.root" toURL="file:/star/u/zamiller/run14NPE/PurityProd/" />
+  <output fromScratch="*purity.root" toURL="file:/star/data01/pwg/zamiller/PurityProd/" />
 </job>
 
 

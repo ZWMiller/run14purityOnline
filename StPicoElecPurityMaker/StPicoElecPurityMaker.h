@@ -16,12 +16,14 @@ class StPicoElecPurityMaker : public StMaker {
  public:
      StPicoElecPurityMaker(const char *name, StPicoDstMaker *picoMaker, const char *outName);
      virtual ~StPicoElecPurityMaker();
-     Bool_t passGoodTrack(StPicoEvent*, StPicoTrack* ); // ZWM
-     Bool_t passEIDCuts(StPicoEvent*, StPicoTrack* );   // ZWM
+     Bool_t passGoodTrack(StPicoEvent*, StPicoTrack*, int ); // ZWM
+     Bool_t passBEMCCuts(StPicoEvent*, StPicoTrack*, int );   // ZWM
+     Bool_t passTOFCuts(StPicoEvent*, StPicoTrack*, int );   // ZWM
+     Bool_t passSMDCuts(StPicoEvent*, StPicoTrack*, int );   // ZWM
      Bool_t Ismuontrack(StPicoEvent*, StPicoTrack* );
      Bool_t IspassTOFcuts(StPicoTrack*);
      Bool_t IspassBEMCcuts(StPicoTrack*);
-     Bool_t passEventCuts(StPicoEvent*);  // ZWM
+     Bool_t passEventCuts(StPicoEvent*,int);  // ZWM
      Bool_t isBHT1(StPicoEvent*);
      Bool_t isBHT2(StPicoEvent*);
      Bool_t isBHT3(StPicoEvent*);
@@ -46,8 +48,9 @@ class StPicoElecPurityMaker : public StMaker {
      void   setNSigPCuts(float l, float h)  { nSigPLow = l;  nSigPHigh = h; };
      void   setNSigKCuts(float l, float h)  { nSigKLow = l;  nSigKHigh = h; };
      void   setNSigPiCuts(float l, float h) { nSigPiLow = l; nSigEHigh = h; };
-     void   setvZCuts(float vz, float dvz)  { vZcut = vz; dvZcut = dvz; };
-     void   setPrimaryPtCut(float pt)       { ePtCut = pt; };
+     void   setvZCuts(int tr, float vz, float dvz)  { vZcut[tr] = vz; dvZcut[tr] = dvz; };
+     void   setvZCutsHFT(int tr, float vz, float dvz)  { vZcutHFT[tr] = vz; dvZcutHFT[tr] = dvz; };
+     void   setPrimaryPtCut(float tpt, float bpt ) { bemcPtCut = bpt; tofPtCut = tpt; };
      void   setPrimaryEtaCut(float et)      { etaCut = et; };
      void   setPrimaryDCACut(float dca)     { dcaCut = dca; };
      void   setNhitsCuts(float dedx, float fit, float ratio) 
@@ -58,28 +61,36 @@ class StPicoElecPurityMaker : public StMaker {
      void   setKaonEnhCut(float kel, float keh) { kaonEnhCutLow = kel; kaonEnhCutHigh = keh; };
      void   setPionEnhCut(float pel, float peh) { pionEnhCutLow = pel; pionEnhCutHigh = peh; };
      void   setProtonEnhCut(float pel, float peh) { protonEnhCutLow = pel; protonEnhCutHigh = peh; };
-     void   setDsmAdcCut(int trg, float val) { dsmAdcCut[trg] = val; };
-     float  getDsmAdcCut(int trg)            { return dsmAdcCut[trg]; };
-     
+     void   setDsmAdcCut(int trg, int val) { dsmAdcCut[trg] = val; };
+     int    getDsmAdcCut(int trg)            { return dsmAdcCut[trg]; };
+     void   setSMDCuts(int ne, int np, float zd, float pd) 
+     {nEtaCut = ne; nPhiCut = np; zDistCut = zd; phiDistCut = pd; };
 
   private:
    StPicoDstMaker *mPicoDstMaker;
    StPicoDst      *mPicoDst;
    
    // dsm adc
-   float dsmAdcCut[4];
+   int dsmAdcCut[4];
    // Trigger Tracking
    int numTrigs;
    int trig;
    // Event cut vars
-   float vZcut;
-   float dvZcut;
+   float vZcut[4];
+   float dvZcut[4];
+   float vZcutHFT[4];
+   float dvZcutHFT[4];
    // Track cut vars
-   float ePtCut, etaCut, dcaCut;
+   float bemcPtCut, tofPtCut, etaCut, dcaCut;
    float nhitsdEdxCut, nhitsFitCut, nhitsRatioCut;
    float poeCutLow, poeCutHigh;
    float tofInvBetaCut,toflocalyCut;
    
+   // SMD cuts
+   int nEtaCut, nPhiCut;
+   float zDistCut, phiDistCut;
+
+   //TPC cuts (not used for purity, here in case)
    float nSigELow, nSigEHigh;
    float nSigPLow, nSigPHigh;
    float nSigKLow, nSigKHigh;
@@ -90,7 +101,7 @@ class StPicoElecPurityMaker : public StMaker {
    TString    mOutName;
 
      Int_t   mNBadRuns;       
-
+     Int_t  trkHFTflag;
     
    TFile*	   fout;
     //-----event QA-----
@@ -106,19 +117,19 @@ class StPicoElecPurityMaker : public StMaker {
     TH2F*      mVxy[4];
     TH2F*      mVRvsVZ[4];
 
-    TH2F*      mRanking_nPtrks[4];
-    TH2F*      mnPtrks_nGtrks[4];
-    TH2F*      mnRefMult_nGRefMult[4];
-    TH2F*      mnRefMult_nPtrks[4];
-    TH2F*      mnRefMult_nGtrks[4];
-    TH2F*      mnGRefMult_nPtrks[4];
-    TH2F*      mnGRefMult_nGtrks[4];
+   // TH2F*      mRanking_nPtrks[4];
+  //  TH2F*      mnPtrks_nGtrks[4];
+  //  TH2F*      mnRefMult_nGRefMult[4];
+  //  TH2F*      mnRefMult_nPtrks[4];
+  //  TH2F*      mnRefMult_nGtrks[4];
+  //  TH2F*      mnGRefMult_nPtrks[4];
+  //  TH2F*      mnGRefMult_nGtrks[4];
 
-    TH2F*      mnPtrks_nTofHits[4];
-    TH2F*      mnPtrks_nMtdHits[4];
+    //TH2F*      mnPtrks_nTofHits[4];
+    //TH2F*      mnPtrks_nMtdHits[4];
 
-    TH2F*      mnTofHits_nMtdHits[4];
-    TH2F*      mnTofMatch_nTofHits[4];
+   // TH2F*      mnTofHits_nMtdHits[4];
+   // TH2F*      mnTofMatch_nTofHits[4];
     
 
     //---------Track QA----------
@@ -138,10 +149,25 @@ class StPicoElecPurityMaker : public StMaker {
     TH2F*      mtrkphi_pt[4];
     TH2F*      mdedx_Pt[4];
 
-    TH2F*      mnsigmaPI_Pt[4];
-    TH2F*      mnsigmaP_Pt[4];
-    TH2F*      mnsigmaK_Pt[4];
-    TH2F*      mnsigmaE_Pt[4];
+    TH2F*      mnsigmaPI_Pt[4][2]; // 0 = no HFT requirement, 1 = w/HFT Only, Only do this for hists that are used in fits 
+    TH2F*      mnsigmaP_Pt[4][2];
+    TH2F*      mnsigmaK_Pt[4][2];
+    TH2F*      mnsigmaE_Pt[4][2]; 
+
+    TH2F*      mnSigmaE_Pt_SMD[4][2];
+    TH2F*      mnSigmaP_Pt_SMD[4][2];
+    TH2F*      mnSigmaK_Pt_SMD[4][2];
+    TH2F*      mnSigmaPI_Pt_SMD[4][2];
+
+    TH2F*      mnSigmaE_Pt_TOF[4][2];
+    TH2F*      mnSigmaP_Pt_TOF[4][2];
+    TH2F*      mnSigmaK_Pt_TOF[4][2];
+    TH2F*      mnSigmaPI_Pt_TOF[4][2];
+    
+    TH2F*      mnSigmaE_Pt_BEMC[4][2];
+    TH2F*      mnSigmaP_Pt_BEMC[4][2];
+    TH2F*      mnSigmaK_Pt_BEMC[4][2];
+    TH2F*      mnSigmaPI_Pt_BEMC[4][2];
     //----TPC information end-----
 
     //-----TOF INFORMATION start----
@@ -156,10 +182,6 @@ class StPicoElecPurityMaker : public StMaker {
 
     //----TOF information end----
     
-    //---------mtd information-------------
-    TH2F*      mmtdBeta_Pt[4];
-    TH2F*      mmtdBeta_channel[4];
- 
     // For Purity
     TH2F*      mnSigmaEvsBeta[4];
     TH2F*      mnSigmaPIvsBeta[4];
@@ -169,12 +191,12 @@ class StPicoElecPurityMaker : public StMaker {
     TH2F*      mtofm2vsBeta[4];
 	
     TH1F*      hNTracks[4];
-    TH2F*      mnSigmaE_KEnh_Pt[4];
-    TH2F*      mnSigmaE_PiEnh_Pt[4];
-    TH2F*      mnSigmaE_PEnh_Pt[4];
-    TH2F*      mnSigmaK_KEnh_Pt[4];
-    TH2F*      mnSigmaPi_PiEnh_Pt[4];
-    TH2F*      mnSigmaP_PEnh_Pt[4];
+    TH2F*      mnSigmaE_KEnh_Pt[4][2];
+    TH2F*      mnSigmaE_PiEnh_Pt[4][2];
+    TH2F*      mnSigmaE_PEnh_Pt[4][2];
+    TH2F*      mnSigmaK_KEnh_Pt[4][2];
+    TH2F*      mnSigmaPi_PiEnh_Pt[4][2];
+    TH2F*      mnSigmaP_PEnh_Pt[4][2];
     ClassDef(StPicoElecPurityMaker, 1)
 };
 
