@@ -445,14 +445,14 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
 
         Float_t beta=btofpidtrait->btofBeta();
         StPhysicalHelixD helix = track->helix();
-        /* if(beta<1e-4||beta>=(USHRT_MAX-1)/20000){
-           Float_t tof = btofpidtrait->btof();
-           StThreeVectorF btofHitPos = btofpidtrait->btofHitPos();
-           float L = tofPathLength(&vertexPos, &btofHitPos, helix.curvature()); 
-           if(tof>0) beta = L/(tof*(c_light/1.0e9));
-           }
-           Float_t tofbeta = 1./(UShort_t)(beta*20000);*/
+        if(beta<1e-4||beta>=(USHRT_MAX-1)/20000){
+          Float_t tof = btofpidtrait->btof();
+          StThreeVectorF btofHitPos = btofpidtrait->btofHitPos();
+          float L = tofPathLength(&vertexPos, &btofHitPos, helix.curvature()); 
+          if(tof>0) beta = L/(tof*(c_light/1.0e9));
+        }
         Float_t tofbeta = 1./beta;
+        //Float_t tofbeta = 1./beta;
         Double_t tofm2=mmomentum*mmomentum*( 1.0/(tofbeta*tofbeta)-1.0);
         minvsBeta_Pt[trig]->Fill(mpt,tofbeta);
         if(tofbeta>0){
@@ -619,7 +619,7 @@ Bool_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track
     // get DSM Adc by finding the tower with same id as trk, then getting that ADC
     int nTrgs = mPicoDst->numberOfEmcTriggers();
     for(int j=0;j<nTrgs;j++){
-      StPicoEmcTrigger *trg = mPicoDst->emcTrigger(j);
+      StPicoEmcTrigger *trg = (StPicoEmcTrigger*)mPicoDst->emcTrigger(j);
       if((trg->flag() & 0xf)){
         int trgId = trg->id();
         if(btowId == trgId){
@@ -662,12 +662,16 @@ Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* trac
     mpoe = track->gMom(event->primaryVertex(),event->bField()).mag()/emcpidtraits->e();
     // get DSM Adc by finding the tower with same id as trk, then getting that ADC
     int nTrgs = mPicoDst->numberOfEmcTriggers();
+    double dsmadc = 1;
+    cout << "bTowId: " << btowId << " ";
     for(int j=0;j<nTrgs;j++){
-      StPicoEmcTrigger *trg = mPicoDst->emcTrigger(j);
+      StPicoEmcTrigger *trg = (StPicoEmcTrigger*)mPicoDst->emcTrigger(j);
       if((trg->flag() & 0xf)){
         int trgId = trg->id();
         if(btowId == trgId){
-          int dsmadc = trg->adc();
+          cout << "trgID: " << trgId << " ";
+          dsmadc = trg->adc();
+          cout << "trg->adc(): " << trg->adc() << endl;
         }
       }
     }
@@ -676,6 +680,7 @@ Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* trac
     mpoe = 0.0; // if no BEMC, set value = 0
 
   double mpt  = track->gMom(event->primaryVertex(),event->bField()).perp();
+  cout << "pT: " << mpt << " p/E: " << mpoe << " e0: " << e0 << " dsmadc: " << dsmadc << endl;
   if( mpt > bemcPtCut && mpoe > poeCutLow && mpoe < poeCutHigh /*&& dsmadc > getDsmAdcCut(trig)*/ )
     return true;
   else 
