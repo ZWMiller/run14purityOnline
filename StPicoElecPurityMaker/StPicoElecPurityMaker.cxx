@@ -703,7 +703,7 @@ Bool_t StPicoElecPurityMaker::passTOFCuts(StPicoEvent* event, StPicoTrack* track
     tofMatchFlag = btofpidtrait->btofMatchFlag(); 
   }
   double mpt  = track->gMom(event->primaryVertex(),event->bField()).perp();
-  if(mpt < tofPtCut && invBeta < tofInvBetaCut && tofMatchFlag > 0 && fabs(toflocaly) < toflocalyCut)
+  if(mpt < tofPtCut && fabs(invBeta) < tofInvBetaCut && tofMatchFlag > 0 && fabs(toflocaly) < toflocalyCut)
     return true;
   else return false;
 }
@@ -766,7 +766,7 @@ void StPicoElecPurityMaker::SetDefaultCuts()
   setPrimaryDCACut(1.5); // eDCA < 1.5 cm
   setNhitsCuts(15.,20.,0.52); // nHitsdEdx >= 15, nHitsFit >= 20, nHitsRatio >= 0.52
   setPoECut(0.3, 1.5); // 0.3 < p/E < 1.5
-  setToFBetaCut(0.03); // 1/B -1 < 0.03
+  setToFBetaCut(0.03); // |1/B -1| < 0.03
   setToFLocalyCut(1.8); // |tof_localy| < 1.8
   setKaonEnhCut(0.9,1.1); // 0.9<1/B<1.1 Kaon Species Select
   setPionEnhCut(0.9,1.1); // 0.9<1/B<1.1 Pion Species Select
