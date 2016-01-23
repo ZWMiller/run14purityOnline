@@ -434,105 +434,103 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           mnSigmaK_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigk);
         }
       }
+    }
+    // TOF Information
+    if(passTOFCuts(event, track, trig))
+    {
+      Int_t tofpidid=track->bTofPidTraitsIndex();
+      if(tofpidid>0){
+        ntofmatchcount++;
+        StPicoBTofPidTraits* btofpidtrait=(StPicoBTofPidTraits*) mPicoDst->btofPidTraits(tofpidid);
 
-      // TOF Information
-      if(passTOFCuts(event, track, trig))
-      {
-        Int_t tofpidid=track->bTofPidTraitsIndex();
-        if(tofpidid>0){
-          ntofmatchcount++;
-          StPicoBTofPidTraits* btofpidtrait=(StPicoBTofPidTraits*) mPicoDst->btofPidTraits(tofpidid);
+        Float_t beta=btofpidtrait->btofBeta();
+        StPhysicalHelixD helix = track->helix();
+        /* if(beta<1e-4||beta>=(USHRT_MAX-1)/20000){
+           Float_t tof = btofpidtrait->btof();
+           StThreeVectorF btofHitPos = btofpidtrait->btofHitPos();
+           float L = tofPathLength(&vertexPos, &btofHitPos, helix.curvature()); 
+           if(tof>0) beta = L/(tof*(c_light/1.0e9));
+           }
+           Float_t tofbeta = 1./(UShort_t)(beta*20000);*/
+        Float_t tofbeta = 1./beta;
+        Double_t tofm2=mmomentum*mmomentum*( 1.0/(tofbeta*tofbeta)-1.0);
+        minvsBeta_Pt[trig]->Fill(mpt,tofbeta);
+        if(tofbeta>0){
+          mtofM2_Pt[trig]->Fill(mpt,tofm2);
+        }
 
-          Float_t beta=btofpidtrait->btofBeta();
-          StPhysicalHelixD helix = track->helix();
-          /* if(beta<1e-4||beta>=(USHRT_MAX-1)/20000){
-             Float_t tof = btofpidtrait->btof();
-             StThreeVectorF btofHitPos = btofpidtrait->btofHitPos();
-             float L = tofPathLength(&vertexPos, &btofHitPos, helix.curvature()); 
-             if(tof>0) beta = L/(tof*(c_light/1.0e9));
-             }
-             Float_t tofbeta = 1./(UShort_t)(beta*20000);*/
-          Float_t tofbeta = 1./beta;
-          Double_t tofm2=mmomentum*mmomentum*( 1.0/(tofbeta*tofbeta)-1.0);
-          minvsBeta_Pt[trig]->Fill(mpt,tofbeta);
-          if(tofbeta>0){
-            mtofM2_Pt[trig]->Fill(mpt,tofm2);
-          }
+        // For Purity
+        mdedxvsBeta    [trig]->Fill(tofbeta, track->dEdx());
+        mnSigmaEvsBeta [trig]->Fill(tofbeta, nsige);
+        mnSigmaPIvsBeta[trig]->Fill(tofbeta, nsigpi);
+        mnSigmaKvsBeta [trig]->Fill(tofbeta, nsigk);
+        mnSigmaPvsBeta [trig]->Fill(tofbeta, nsigp);
+        mtofm2vsBeta   [trig]->Fill(tofbeta, tofm2);
 
-          // For Purity
-          mdedxvsBeta    [trig]->Fill(tofbeta, track->dEdx());
-          mnSigmaEvsBeta [trig]->Fill(tofbeta, nsige);
-          mnSigmaPIvsBeta[trig]->Fill(tofbeta, nsigpi);
-          mnSigmaKvsBeta [trig]->Fill(tofbeta, nsigk);
-          mnSigmaPvsBeta [trig]->Fill(tofbeta, nsigp);
-          mtofm2vsBeta   [trig]->Fill(tofbeta, tofm2);
+        mnSigmaPI_Pt_TOF[trig][0]->Fill(mpt,nsigpi);
+        mnSigmaP_Pt_TOF[trig][0]->Fill(mpt,nsigp);
+        mnSigmaE_Pt_TOF[trig][0]->Fill(mpt,nsige);
+        mnSigmaK_Pt_TOF[trig][0]->Fill(mpt,nsigk);
 
-          mnSigmaPI_Pt_TOF[trig][0]->Fill(mpt,nsigpi);
-          mnSigmaP_Pt_TOF[trig][0]->Fill(mpt,nsigp);
-          mnSigmaE_Pt_TOF[trig][0]->Fill(mpt,nsige);
-          mnSigmaK_Pt_TOF[trig][0]->Fill(mpt,nsigk);
+        if(trkHFTflag == 1)
+        {
+          mnSigmaPI_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigpi);
+          mnSigmaP_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigp);
+          mnSigmaE_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsige);
+          mnSigmaK_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigk);
+        }
 
+        if(kaonEnhCutLow < tofbeta && tofbeta < kaonEnhCutHigh)
+        {
+          mnSigmaE_KEnh_Pt[trig][0]->Fill(mpt,nsige);
+          mnSigmaK_KEnh_Pt[trig][0]->Fill(mpt,nsigk);
           if(trkHFTflag == 1)
           {
-            mnSigmaPI_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigpi);
-            mnSigmaP_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigp);
-            mnSigmaE_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsige);
-            mnSigmaK_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigk);
+            mnSigmaE_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
+            mnSigmaK_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
           }
-
-          if(kaonEnhCutLow < tofbeta && tofbeta < kaonEnhCutHigh)
-          {
-            mnSigmaE_KEnh_Pt[trig][0]->Fill(mpt,nsige);
-            mnSigmaK_KEnh_Pt[trig][0]->Fill(mpt,nsigk);
-            if(trkHFTflag == 1)
-            {
-              mnSigmaE_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
-              mnSigmaK_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
-            }
-          }
-
-          if(pionEnhCutLow < tofbeta && tofbeta < pionEnhCutHigh)
-          {
-            mnSigmaE_PiEnh_Pt [trig][0]->Fill(mpt,nsige);
-            mnSigmaPi_PiEnh_Pt[trig][0]->Fill(mpt,nsigpi);
-            if(trkHFTflag == 1)
-            {
-              mnSigmaE_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
-              mnSigmaPi_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
-            }
-          }
-
-          if(protonEnhCutLow < tofbeta && tofbeta < protonEnhCutHigh)
-          {
-            mnSigmaE_PEnh_Pt[trig][0]->Fill(mpt,nsige);
-            mnSigmaP_PEnh_Pt[trig][0]->Fill(mpt,nsigp);
-            if(trkHFTflag == 1)
-            {
-              mnSigmaE_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
-              mnSigmaP_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
-            }
-          }
-
-          Int_t tofcellid=   btofpidtrait->btofCellId();
-          Int_t toftray= (int)tofcellid/192 + 1;
-          Int_t tofmodule= (int)((tofcellid%192)/6.)+1;
-
-          Float_t toflocaly = btofpidtrait->btofYLocal();
-          Float_t toflocalz = btofpidtrait->btofZLocal();
-          // Float_t tofhitPosx = btofpidtrait->btofHitPos().x();
-          // Float_t tofhitPosy = btofpidtrait->btofHitPos().y();
-          // Float_t tofhitPosz = btofpidtrait->btofHitPos().z();
-          if(fillhistflag){
-            mtoftray_localY[trig]->Fill(toftray,toflocaly);
-            mtoftray_localZ[trig]->Fill(toftray,toflocalz);
-            mtoftray_matchflag[trig]->Fill(toftray,btofpidtrait->btofMatchFlag());
-            mtoftray_module[trig]->Fill(toftray,tofmodule);
-
-          }//
         }
-      }// End TOF
 
-    }
+        if(pionEnhCutLow < tofbeta && tofbeta < pionEnhCutHigh)
+        {
+          mnSigmaE_PiEnh_Pt [trig][0]->Fill(mpt,nsige);
+          mnSigmaPi_PiEnh_Pt[trig][0]->Fill(mpt,nsigpi);
+          if(trkHFTflag == 1)
+          {
+            mnSigmaE_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
+            mnSigmaPi_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
+          }
+        }
+
+        if(protonEnhCutLow < tofbeta && tofbeta < protonEnhCutHigh)
+        {
+          mnSigmaE_PEnh_Pt[trig][0]->Fill(mpt,nsige);
+          mnSigmaP_PEnh_Pt[trig][0]->Fill(mpt,nsigp);
+          if(trkHFTflag == 1)
+          {
+            mnSigmaE_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
+            mnSigmaP_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
+          }
+        }
+
+        Int_t tofcellid=   btofpidtrait->btofCellId();
+        Int_t toftray= (int)tofcellid/192 + 1;
+        Int_t tofmodule= (int)((tofcellid%192)/6.)+1;
+
+        Float_t toflocaly = btofpidtrait->btofYLocal();
+        Float_t toflocalz = btofpidtrait->btofZLocal();
+        // Float_t tofhitPosx = btofpidtrait->btofHitPos().x();
+        // Float_t tofhitPosy = btofpidtrait->btofHitPos().y();
+        // Float_t tofhitPosz = btofpidtrait->btofHitPos().z();
+        if(fillhistflag){
+          mtoftray_localY[trig]->Fill(toftray,toflocaly);
+          mtoftray_localZ[trig]->Fill(toftray,toflocalz);
+          mtoftray_matchflag[trig]->Fill(toftray,btofpidtrait->btofMatchFlag());
+          mtoftray_module[trig]->Fill(toftray,tofmodule);
+
+        }//
+      }
+    }// End TOF
   }//loop of all tracks
   return kStOK;
 }//end of main filling fucntion
