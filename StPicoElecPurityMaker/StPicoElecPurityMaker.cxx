@@ -417,10 +417,8 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
       }
 
       // SMD and BEMC
-      cout << "trig test: " << trig << endl;
       if( passSMDCuts(event, track, trig) )
       {
-        cout << "trig test2: " << trig << endl;
         mnSigmaPI_Pt_SMD[trig][0]->Fill(mpt,nsigpi);
         mnSigmaP_Pt_SMD[trig][0]->Fill(mpt,nsigp);
         mnSigmaE_Pt_SMD[trig][0]->Fill(mpt,nsige);
@@ -646,8 +644,9 @@ Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* trac
   // Get BEMC info
   Int_t emcpidtraitsid=track->emcPidTraitsIndex();
   double mpoe;
+  int dsmadc = 1;
   int bemcId, btowId, nPhi,nEta;
-  float zDist, phiDist,e0,adc0,dsmadc;
+  float zDist, phiDist,e0,adc0;
   if(emcpidtraitsid>=0){
     StPicoEmcPidTraits* emcpidtraits=(StPicoEmcPidTraits*) mPicoDst->emcPidTraits(emcpidtraitsid);
 
@@ -662,16 +661,16 @@ Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* trac
     mpoe = track->gMom(event->primaryVertex(),event->bField()).mag()/emcpidtraits->e();
     // get DSM Adc by finding the tower with same id as trk, then getting that ADC
     int nTrgs = mPicoDst->numberOfEmcTriggers();
-    double dsmadc = 1;
-    cout << "bTowId: " << btowId << " ";
     for(int j=0;j<nTrgs;j++){
       StPicoEmcTrigger *trg = (StPicoEmcTrigger*)mPicoDst->emcTrigger(j);
       if((trg->flag() & 0xf)){
         int trgId = trg->id();
         if(btowId == trgId){
+          cout << "bTowId: " << btowId << " ";
           cout << "trgID: " << trgId << " ";
           dsmadc = trg->adc();
-          cout << "trg->adc(): " << trg->adc() << endl;
+          cout << "trg->adc(): " << dsmadc << endl;
+          break;
         }
       }
     }
@@ -680,8 +679,8 @@ Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* trac
     mpoe = 0.0; // if no BEMC, set value = 0
 
   double mpt  = track->gMom(event->primaryVertex(),event->bField()).perp();
-  cout << "pT: " << mpt << " p/E: " << mpoe << " e0: " << e0 << " dsmadc: " << dsmadc << endl;
-  if( mpt > bemcPtCut && mpoe > poeCutLow && mpoe < poeCutHigh /*&& dsmadc > getDsmAdcCut(trig)*/ )
+  //cout << "pT: " << mpt << " p/E: " << mpoe << " e0: " << e0 << " dsmadc: " << dsmadc << endl;
+  if( mpt > bemcPtCut && mpoe > poeCutLow && mpoe < poeCutHigh && dsmadc > getDsmAdcCut(trig) )
     return true;
   else 
     return false;
