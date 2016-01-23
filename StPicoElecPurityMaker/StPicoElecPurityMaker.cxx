@@ -633,7 +633,7 @@ Bool_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track
   } // if no BEMC, set value = not in range
   double mpt  = track->gMom(event->primaryVertex(),event->bField()).perp();
 
-  if(mpt > bemcPtCut && fabs(zDist) < zDistCut && (phiDist) < phiDistCut && nEta >= nEtaCut && nPhi >= nPhiCut)
+  if(mpt > bemcPtCut && fabs(zDist) < zDistCut && fabs(phiDist) < phiDistCut && nEta >= nEtaCut && nPhi >= nPhiCut)
     return true;
   else 
     return false;
