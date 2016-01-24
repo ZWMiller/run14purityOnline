@@ -692,13 +692,24 @@ Bool_t StPicoElecPurityMaker::passTOFCuts(StPicoEvent* event, StPicoTrack* track
   Float_t invBeta=9999;
   Float_t toflocaly=9999;
   Float_t tofMatchFlag = -1;
+  StThreeVectorF vertexPos;
+  vertexPos = event->primaryVertex();
   Int_t tofpidid=track->bTofPidTraitsIndex();
   if(tofpidid>0){
     StPicoBTofPidTraits* btofpidtrait=(StPicoBTofPidTraits*) mPicoDst->btofPidTraits(tofpidid);
 
     //------tof information start----------
-    Float_t tofbeta=btofpidtrait->btofBeta();
-    invBeta = (1/tofbeta) - 1.0;
+    //Float_t tofbeta=btofpidtrait->btofBeta();
+    Float_t beta=btofpidtrait->btofBeta();
+    StPhysicalHelixD helix = track->helix();
+    if(beta<1e-4||beta>=(USHRT_MAX-1)/20000){
+      Float_t tof = btofpidtrait->btof();
+      StThreeVectorF btofHitPos = btofpidtrait->btofHitPos();
+      float L = tofPathLength(&vertexPos, &btofHitPos, helix.curvature());
+      if(tof>0) beta = L/(tof*(c_light/1.0e9));
+    }
+    Float_t tofbeta = 1./beta;
+    invBeta = (1./tofbeta) - 1.0;
     toflocaly = btofpidtrait->btofYLocal();
     tofMatchFlag = btofpidtrait->btofMatchFlag(); 
   }
