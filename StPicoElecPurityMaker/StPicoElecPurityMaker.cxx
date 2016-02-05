@@ -156,6 +156,14 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mnSigmaP_Pt_SMD[tr][1] = new TH2F(Form("nSigmaP_Pt_SMD_HFT_%i",tr),"nSigmaP vs Pt of HFT tracks using SMD; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaK_Pt_SMD[tr][1] = new TH2F(Form("nSigmaK_Pt_SMD_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks using SMD; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaE_Pt_SMD[tr][1] = new TH2F(Form("nSigmaE_Pt_SMD_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+    mnSigmaPI_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaPI_Pt_SMD2_%i",tr),"nSigmaPI vs Pt of all tracks using SMD2; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+    mnSigmaP_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaP_Pt_SMD2_%i",tr),"nSigmaP vs Pt of all tracks using SMD2; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+    mnSigmaK_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaK_Pt_SMD2_%i",tr),"nSigmaK vs Pt of all tracks using SMD2; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+    mnSigmaE_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaE_Pt_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+    mnSigmaPI_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaPI_Pt_SMD2_HFT_%i",tr),"nSigmaPI vs Pt of HFT tracks using SMD2; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+    mnSigmaP_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaP_Pt_SMD2_HFT_%i",tr),"nSigmaP vs Pt of HFT tracks using SMD2; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+    mnSigmaK_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaK_Pt_SMD2_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks using SMD2; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+    mnSigmaE_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaE_Pt_SMD2_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaPI_Pt_TOF[tr][0] = new TH2F(Form("nSigmaPI_Pt_TOF_%i",tr),"nSigmaPI vs Pt of all tracks using TOF; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaP_Pt_TOF[tr][0] = new TH2F(Form("nSigmaP_Pt_TOF_%i",tr),"nSigmaP vs Pt of all tracks using TOF; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaK_Pt_TOF[tr][0] = new TH2F(Form("nSigmaK_Pt_TOF_%i",tr),"nSigmaK vs Pt of all tracks using TOF; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
@@ -417,7 +425,7 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
       }
 
       // SMD and BEMC
-      if( passSMDCuts(event, track, trig) )
+      if( passSMDCuts(event, track, trig,1) )// 1 = loose cuts
       {
         mnSigmaPI_Pt_SMD[trig][0]->Fill(mpt,nsigpi);
         mnSigmaP_Pt_SMD[trig][0]->Fill(mpt,nsigp);
@@ -430,6 +438,22 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           mnSigmaP_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigp);
           mnSigmaE_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsige);
           mnSigmaK_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigk);
+        }
+      }
+      // Tighter SMD Cuts
+      if( passSMDCuts(event, track, trig,2) )// 2 = tight cuts
+      {
+        mnSigmaPI_Pt_SMD2[trig][0]->Fill(mpt,nsigpi);
+        mnSigmaP_Pt_SMD2[trig][0]->Fill(mpt,nsigp);
+        mnSigmaE_Pt_SMD2[trig][0]->Fill(mpt,nsige);
+        mnSigmaK_Pt_SMD2[trig][0]->Fill(mpt,nsigk);
+
+        if(trkHFTflag == 1)
+        {
+          mnSigmaPI_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigpi);
+          mnSigmaP_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigp);
+          mnSigmaE_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsige);
+          mnSigmaK_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigk);
         }
       }
     }
@@ -595,13 +619,16 @@ Bool_t StPicoElecPurityMaker::passGoodTrack(StPicoEvent* event, StPicoTrack* tra
 
 //------------------------------------------------------------- 
 
-Bool_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track, int trig)
+Bool_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track, int trig, int cutset=1)
 {
-  // Get BEMC/SMD info
+  // Get SMD info
+  
+  // Get BEMC info
   Int_t emcpidtraitsid=track->emcPidTraitsIndex();
   double mpoe;
+  int dsmadc = 1;
   int bemcId, btowId, nPhi,nEta;
-  float zDist, phiDist,e0,adc0,dsmadc;
+  float zDist, phiDist,e0,adc0;
   if(emcpidtraitsid>=0){
     StPicoEmcPidTraits* emcpidtraits=(StPicoEmcPidTraits*) mPicoDst->emcPidTraits(emcpidtraitsid);
 
@@ -621,22 +648,36 @@ Bool_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track
       if((trg->flag() & 0xf)){
         int trgId = trg->id();
         if(btowId == trgId){
+          cout << "bTowId: " << btowId << " ";
+          cout << "trgID: " << trgId << " ";
           dsmadc = trg->adc();
+          cout << "trg->adc(): " << dsmadc << endl;
+          break;
         }
       }
     }
   }
-  else 
+  else
   {
-    mpoe = 0.0; 
+    mpoe = 0.0; // if no BEMC, set value = 0
     nPhi = -999;
-  } // if no BEMC, set value = not in range
+  }
   double mpt  = track->gMom(event->primaryVertex(),event->bField()).perp();
 
-  if(mpt > bemcPtCut && fabs(zDist) < zDistCut && fabs(phiDist) < phiDistCut && nEta >= nEtaCut && nPhi >= nPhiCut)
-    return true;
-  else 
-    return false;
+  if(cutset == 1){
+    if(mpt > bemcPtCut && fabs(zDist) < zDistCut && fabs(phiDist) < phiDistCut && nEta >= nEtaCut && nPhi >= nPhiCut)
+      return true;
+    else 
+      return false;
+  }
+  if(cutset == 2){
+    if(mpt > bemcPtCut && fabs(zDist) < zDistCut2 && fabs(phiDist) < phiDistCut2 && nEta >= nEtaCut2 && nPhi >= nPhiCut2)
+      return true;
+    else 
+      return false;
+  }
+
+  return false; //if cutset doesn't work, kill track
 }
 
 Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* track, int trig)
@@ -787,5 +828,6 @@ void StPicoElecPurityMaker::SetDefaultCuts()
   setDsmAdcCut(2,18); // dsmADC cut sets ()
   setDsmAdcCut(3,21); // dsmADC cut sets ()
   setSMDCuts(0,0,3.,0.8); // nEta>=, nPhi>=, zDist<, phiDist< 
+  setSMDCuts2(1,1,3.,0.08); // nEta>=, nPhi>=, zDist<, phiDist< 
 }
 

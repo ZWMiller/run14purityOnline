@@ -19,7 +19,7 @@ class StPicoElecPurityMaker : public StMaker {
      Bool_t passGoodTrack(StPicoEvent*, StPicoTrack*, int ); // ZWM
      Bool_t passBEMCCuts(StPicoEvent*, StPicoTrack*, int );   // ZWM
      Bool_t passTOFCuts(StPicoEvent*, StPicoTrack*, int );   // ZWM
-     Bool_t passSMDCuts(StPicoEvent*, StPicoTrack*, int );   // ZWM
+     Bool_t passSMDCuts(StPicoEvent*, StPicoTrack*, int ,int );   // ZWM
      Bool_t Ismuontrack(StPicoEvent*, StPicoTrack* );
      Bool_t IspassTOFcuts(StPicoTrack*);
      Bool_t IspassBEMCcuts(StPicoTrack*);
@@ -65,6 +65,8 @@ class StPicoElecPurityMaker : public StMaker {
      int    getDsmAdcCut(int trg)            { return dsmAdcCut[trg]; };
      void   setSMDCuts(int ne, int np, float zd, float pd) 
      {nEtaCut = ne; nPhiCut = np; zDistCut = zd; phiDistCut = pd; };
+     void   setSMDCuts2(int ne, int np, float zd, float pd) 
+     {nEtaCut2 = ne; nPhiCut2 = np; zDistCut2 = zd; phiDistCut2 = pd; };
 
   private:
    StPicoDstMaker *mPicoDstMaker;
@@ -86,9 +88,11 @@ class StPicoElecPurityMaker : public StMaker {
    float poeCutLow, poeCutHigh;
    float tofInvBetaCut,toflocalyCut;
    
-   // SMD cuts
+   // SMD cuts (1 = Xiaozhi run 12 cuts, 2 = Daniel run 10 cuts [tighter])
    int nEtaCut, nPhiCut;
    float zDistCut, phiDistCut;
+   int nEtaCut2, nPhiCut2;
+   float zDistCut2, phiDistCut2;
 
    //TPC cuts (not used for purity, here in case)
    float nSigELow, nSigEHigh;
@@ -158,6 +162,11 @@ class StPicoElecPurityMaker : public StMaker {
     TH2F*      mnSigmaP_Pt_SMD[4][2];
     TH2F*      mnSigmaK_Pt_SMD[4][2];
     TH2F*      mnSigmaPI_Pt_SMD[4][2];
+
+    TH2F*      mnSigmaE_Pt_SMD2[4][2];
+    TH2F*      mnSigmaP_Pt_SMD2[4][2];
+    TH2F*      mnSigmaK_Pt_SMD2[4][2];
+    TH2F*      mnSigmaPI_Pt_SMD2[4][2];
 
     TH2F*      mnSigmaE_Pt_TOF[4][2];
     TH2F*      mnSigmaP_Pt_TOF[4][2];
