@@ -17,9 +17,10 @@ class StPicoElecPurityMaker : public StMaker {
      StPicoElecPurityMaker(const char *name, StPicoDstMaker *picoMaker, const char *outName);
      virtual ~StPicoElecPurityMaker();
      Bool_t passGoodTrack(StPicoEvent*, StPicoTrack*, int ); // ZWM
+     Bool_t passGoodTrack_NoEta(StPicoEvent*, StPicoTrack*, int ); // ZWM
      Bool_t passBEMCCuts(StPicoEvent*, StPicoTrack*, int );   // ZWM
      Bool_t passTOFCuts(StPicoEvent*, StPicoTrack*, int );   // ZWM
-     Bool_t passSMDCuts(StPicoEvent*, StPicoTrack*, int ,int );   // ZWM
+     Int_t passSMDCuts(StPicoEvent*, StPicoTrack*, int );   // ZWM, return INT becuase could fit multiple cases
      Bool_t Ismuontrack(StPicoEvent*, StPicoTrack* );
      Bool_t IspassTOFcuts(StPicoTrack*);
      Bool_t IspassBEMCcuts(StPicoTrack*);
@@ -102,6 +103,7 @@ class StPicoElecPurityMaker : public StMaker {
    float pionEnhCutLow,pionEnhCutHigh;
    float protonEnhCutLow,protonEnhCutHigh;
    float kaonEnhCutLow,kaonEnhCutHigh;
+   int trigCounter;
    TString    mOutName;
 
      Int_t   mNBadRuns;       
@@ -110,7 +112,7 @@ class StPicoElecPurityMaker : public StMaker {
    TFile*	   fout;
     //-----event QA-----
 
-
+    TH1F*      trigType;
     TH1F*      hNEvents[4];
     TH1F*    	htriggerindex[4];
     TH1F*      mVz_vpd[4];

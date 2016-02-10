@@ -118,9 +118,11 @@ void StPicoElecPurityMaker::DeclareHistograms() {
   Float_t betaLow = 0.8;
   Float_t betaHigh = 1.8;
   fout->cd();
+
+  trigType = new TH1F("trigType","1:MB,2:HT1,4:HT2,8:HT3. Sum all triggers in hist",40,0,20);
   for(int tr=0; tr<numTrigs; tr++)
   {
-    hNEvents[tr] = new TH1F(Form("hNEvents_%i",tr),"number of events: 0 for total and 2 for MBs events", 10, 0, 10 );
+    hNEvents[tr] = new TH1F(Form("hNEvents_%i",tr),"number of events: 0 for total and 2 for MBs events and 4 for Vz<6cm", 10, 0, 10 );
     htriggerindex[tr] =new TH1F(Form("htriggerindex_%i",tr),"triggerindex", 25,0,25);
     mVz_vpd[tr] = new TH1F(Form("vz_vpd_%i",tr),"VZ_VPD distribution (cm)",400,-200,200);
     mVz_tpc[tr] = new TH1F(Form("vz_tpc_%i",tr),"the Vz_TPC distribution (cm) ",400,-200,200);
@@ -243,10 +245,14 @@ Int_t StPicoElecPurityMaker::Make() {
   }
 
   trig = 99;
-  if( event->isMinBias()) FillHistograms(0,event); // Decide what type of trigger you have, use to select what histos to fill
-  if( isBHT1( event ) )   FillHistograms(1,event);
-  if( isBHT2( event ) )   FillHistograms(2,event);
-  if( isBHT3( event ) )   FillHistograms(3,event);
+  trigCounter=0.; // Used to find overlaps in samples. Modified after checking event cuts. Re-zero each event.
+  if( event->isMinBias()) {FillHistograms(0,event);} // Decide what type of trigger you have, use to select what histos to fill
+  if( isBHT1( event ) )   {FillHistograms(1,event);}
+  if( isBHT2( event ) )   {FillHistograms(2,event);}
+  if( isBHT3( event ) )   {FillHistograms(3,event);}
+  if(trigCounter == 0) 
+    trigCounter = -99;
+  trigType->Fill(trigCounter); // Use to detect sample overlaps
   if( trig == 99 ) return kStOK; // if no trigger match, throw out event
 
   return kStOK;
@@ -258,6 +264,14 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
   hNEvents[trig]->Fill(0);
   if(! passEventCuts(event,trig) ) return kStOK;
   hNEvents[trig]->Fill(2);
+  if(event->primaryVertex().z() < 6.)
+    hNEvents[trig]->Fill(4);
+  
+  // For sample overlap
+  if(trig == 0) trigCounter += 1;
+  if(trig == 1) trigCounter += 2;
+  if(trig == 2) trigCounter += 4;
+  if(trig == 3) trigCounter += 8;
 
   if(fillhistflag){	
 
@@ -425,7 +439,8 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
       }
 
       // SMD and BEMC
-      if( passSMDCuts(event, track, trig,1) )// 1 = loose cuts
+      int checkSMD = passSMDCuts(event, track, trig);
+      if(checkSMD > 0 )// if passes either: 1 = loose cuts or 2 = tight cuts
       {
         mnSigmaPI_Pt_SMD[trig][0]->Fill(mpt,nsigpi);
         mnSigmaP_Pt_SMD[trig][0]->Fill(mpt,nsigp);
@@ -441,7 +456,7 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
         }
       }
       // Tighter SMD Cuts
-      if( passSMDCuts(event, track, trig,2) )// 2 = tight cuts
+      if( checkSMD == 2) // 2 = tight cuts
       {
         mnSigmaPI_Pt_SMD2[trig][0]->Fill(mpt,nsigpi);
         mnSigmaP_Pt_SMD2[trig][0]->Fill(mpt,nsigp);
@@ -616,10 +631,40 @@ Bool_t StPicoElecPurityMaker::passGoodTrack(StPicoEvent* event, StPicoTrack* tra
   else return false;
 }
 
+// ----------------------------------------------------------
+Bool_t StPicoElecPurityMaker::passGoodTrack_NoEta(StPicoEvent* event, StPicoTrack* track, int trig)
+{
+  double fithitfrac, chargeq, fhitsdEdx, fhitsFit,feta; 
+  double pt = track->gMom(event->primaryVertex(),event->bField()).perp();
+  feta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
+  fhitsFit = track->nHitsFit();
+  fithitfrac=fhitsFit/track->nHitsMax();
+  fhitsdEdx = track->nHitsDedx();
+  chargeq=track->charge();
+  double PtCut = 0.2;
+
+  double mdca;
+  // Get DCA info
+  StThreeVectorF vertexPos;
+  vertexPos = event->primaryVertex();
+  StDcaGeometry *dcaG = new StDcaGeometry();
+  dcaG->set(track->params(),track->errMatrix());
+  StPhysicalHelixD helix = dcaG->helix();
+  delete dcaG;
+  StThreeVectorF dcaPoint = helix.at( helix.pathLength(vertexPos.x(), vertexPos.y())  );
+  double dcamag= (dcaPoint-vertexPos).mag();
+  StThreeVectorF dcaP = helix.momentumAt( vertexPos.x(),vertexPos.y() );
+  double dcaXY= ( (dcaPoint-vertexPos).x()*dcaP.y()-(dcaPoint-vertexPos).y()*dcaP.x() )/dcaP.perp();
+  double dcaZ= dcaPoint.z() - vertexPos.z();
+  mdca = dcamag;
+
+  if(pt> PtCut && fhitsFit >= nhitsFitCut && fhitsdEdx >= nhitsdEdxCut && fithitfrac >= nhitsRatioCut && fabs(chargeq)>0 && mdca < dcaCut && mdca > 0.) return true;
+  else return false;
+}
 
 //------------------------------------------------------------- 
 
-Bool_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track, int trig, int cutset=1)
+Int_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track, int trig)
 {
   // Get SMD info
   
@@ -664,20 +709,12 @@ Bool_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track
   }
   double mpt  = track->gMom(event->primaryVertex(),event->bField()).perp();
 
-  if(cutset == 1){
-    if(mpt > bemcPtCut && fabs(zDist) < zDistCut && fabs(phiDist) < phiDistCut && nEta >= nEtaCut && nPhi >= nPhiCut)
-      return true;
-    else 
-      return false;
-  }
-  if(cutset == 2){
-    if(mpt > bemcPtCut && fabs(zDist) < zDistCut2 && fabs(phiDist) < phiDistCut2 && nEta >= nEtaCut2 && nPhi >= nPhiCut2)
-      return true;
-    else 
-      return false;
-  }
-
-  return false; //if cutset doesn't work, kill track
+  if(mpt > bemcPtCut && fabs(zDist) < zDistCut2 && fabs(phiDist) < phiDistCut2 && nEta >= nEtaCut2 && nPhi >= nPhiCut2)
+    return 2;
+  else if(mpt > bemcPtCut && fabs(zDist) < zDistCut && fabs(phiDist) < phiDistCut && nEta >= nEtaCut && nPhi >= nPhiCut)
+    return 1;
+  else 
+    return 0;
 }
 
 Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* track, int trig)
@@ -808,11 +845,11 @@ void StPicoElecPurityMaker::SetDefaultCuts()
   setvZCuts(0,6.0,4.0);  // (vZ, delVz)
   setvZCuts(1,30.0,4.0); // (vZ, delVz)
   setvZCuts(2,30.0,4.0); // (vZ, delVz)
-  setvZCuts(3,30.0,4.0); // (vZ, delVz)
+  setvZCuts(3,30.0,30.0); // (vZ, delVz)
   setvZCutsHFT(0,6.0,4.0);  // (vZ, delVz)
   setvZCutsHFT(1,6.0,4.0); // (vZ, delVz)
   setvZCutsHFT(2,6.0,4.0); // (vZ, delVz)
-  setvZCutsHFT(3,6.0,4.0); // (vZ, delVz)
+  setvZCutsHFT(3,6.0,30.0); // (vZ, delVz)
   setPrimaryPtCut(3.0, 1.5); // pT < 3 (TOF), pT >1.5 (BEMC)
   setPrimaryEtaCut(1.0); // |eta| < 1.0
   setPrimaryDCACut(1.5); // eDCA < 1.5 cm
@@ -826,7 +863,7 @@ void StPicoElecPurityMaker::SetDefaultCuts()
   setDsmAdcCut(0,0); // dsmADC cut sets (not in MB): Use getDsmAdcCut(trig) to return value
   setDsmAdcCut(1,15); // dsmADC cut sets ()
   setDsmAdcCut(2,18); // dsmADC cut sets ()
-  setDsmAdcCut(3,21); // dsmADC cut sets ()
+  setDsmAdcCut(3,25); // dsmADC cut sets ()
   setSMDCuts(0,0,3.,0.8); // nEta>=, nPhi>=, zDist<, phiDist< 
   setSMDCuts2(1,1,3.,0.08); // nEta>=, nPhi>=, zDist<, phiDist< 
 }
