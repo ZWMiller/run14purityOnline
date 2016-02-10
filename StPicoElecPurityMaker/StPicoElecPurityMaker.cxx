@@ -213,7 +213,14 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mnSigmaP_PEnh_Pt[tr][1] = new TH2F(Form("nSigmaP_PEnh_Pt_HFT_%i",tr),"nSigmaP vs pT with HFT;pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaPi_PiEnh_Pt[tr][1] = new TH2F(Form("nSigmaPi_PiEnh_Pt_HFT_%i",tr),"nSigmaPi vs pT with HFT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
 
+    //--------------------Eta Dependence Study----------------
+    mnSigmaE_Pt_Eta_SMD[tr] = new TH3F(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,200,-2,2);
+    mnSigmaE_Pt_Eta_SMD2[tr] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,200,-2,2);
+    mnSigmaE_Pt_Eta_BEMC[tr] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,200,-2,2);
   }
+  // -------- dVz Study -------
+  mTPCvsVPD_Vz = new TH2F("TPCvsVPD_Vz","TPC vs VPD Vz (no dVz Cut)",400,-200,200,400,-200,200);
+  mTPCvsDVz = new TH2F("TPCvsDVz","TPC vs DVz (no dVz Cut)",400,-200,200,400,-200,200);
 }// er chen
 
 //----------------------------------------------------------------------------- 
@@ -249,7 +256,7 @@ Int_t StPicoElecPurityMaker::Make() {
   if( event->isMinBias()) {FillHistograms(0,event);} // Decide what type of trigger you have, use to select what histos to fill
   if( isBHT1( event ) )   {FillHistograms(1,event);}
   if( isBHT2( event ) )   {FillHistograms(2,event);}
-  if( isBHT3( event ) )   {FillHistograms(3,event);}
+  if( isBHT3( event ) )   {FillHistograms(3,event); dVzStudy(event);}
   if(trigCounter == 0) 
     trigCounter = -99;
   trigType->Fill(trigCounter); // Use to detect sample overlaps
@@ -266,7 +273,7 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
   hNEvents[trig]->Fill(2);
   if(event->primaryVertex().z() < 6.)
     hNEvents[trig]->Fill(4);
-  
+
   // For sample overlap
   if(trig == 0) trigCounter += 1;
   if(trig == 1) trigCounter += 2;
@@ -379,201 +386,283 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
     // Check if pass track quality if fails... skip it
     hNTracks[trig]->Fill(0);
     trkHFTflag = 0;
-    if(!passGoodTrack(event, track, trig)) continue;
-    hNTracks[trig]->Fill(2);
+    Bool_t isGoodTrack = passGoodTrack(event,track,trig);
+    Bool_t isGoodTrack_NoEta = passGoodTrack_NoEta(event,track,trig);
+    if(!isGoodTrack && !isGoodTrack_NoEta) continue;
 
-    Double_t meta,mpt,mphi,mcharge,mdedx;
+    if(isGoodTrack_NoEta)
+    {
 
-    //change to global track
-    meta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
-    if(track->pMom().mag()!=0) Nprimarytracks++;
-    mphi=RotatePhi(track->gMom(event->primaryVertex(),event->bField()).phi());
-    mpt=track->gMom(event->primaryVertex(),event->bField()).perp();
-    mcharge=track->charge();
-    mdedx=track->dEdx();
+      hNTracks[trig]->Fill(10);
 
-    if(mcharge==0||meta==0||mphi==0||mdedx==0/*||track->pMom().mag()!=0*/) continue; //remove neutral, untracked, or primary tracks
-    hNTracks[trig]->Fill(4);
-    if(track->isHFTTrack()){
-      nhftmatchcount++;
-      if(fabs(event->primaryVertex().z()) < vZcutHFT[trig])      
+      Double_t meta,mpt,mphi,mcharge,mdedx;
+      Double_t nsige=track->nSigmaElectron();
+      
+      //change to global track
+      meta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
+      if(track->pMom().mag()!=0) Nprimarytracks++;
+      mphi=RotatePhi(track->gMom(event->primaryVertex(),event->bField()).phi());
+      mpt=track->gMom(event->primaryVertex(),event->bField()).perp();
+      mcharge=track->charge();
+      mdedx=track->dEdx();
+
+      if(mcharge==0||meta==0||mphi==0||mdedx==0/*||track->pMom().mag()!=0*/) continue; //remove neutral, untracked, or primary tracks
+      hNTracks[trig]->Fill(12);
+
+      // BEMC nSig
+      if(passBEMCCuts(event, track, trig))
       {
-        trkHFTflag = 1; 
-        hNTracks[trig]->Fill(6);
+        mnSigmaE_Pt_Eta_BEMC[trig]->Fill(mpt,nsige,meta);
+
+        // SMD and BEMC
+        int checkSMD = passSMDCuts(event, track, trig);
+        if(checkSMD > 0 )// if passes either: 1 = loose cuts or 2 = tight cuts
+        {
+          mnSigmaE_Pt_Eta_SMD[trig]->Fill(mpt,nsige,meta);
+        }
+        // Tighter SMD Cuts
+        if( checkSMD == 2) // 2 = tight cuts
+        {
+          mnSigmaE_Pt_Eta_SMD2[trig]->Fill(mpt,nsige,meta);
+        }
       }
     }
 
-    Float_t mmomentum=track->gMom(event->primaryVertex(),event->bField()).mag();
-    Double_t nsigpi=track->nSigmaPion();
-    Double_t nsigk=track->nSigmaKaon();
-    Double_t nsigp=track->nSigmaProton();
-    Double_t nsige=track->nSigmaElectron();
+    if(isGoodTrack){ 
+      hNTracks[trig]->Fill(2);
 
-    mtrkpt[trig]->Fill( mpt );
-    mtrketa[trig]->Fill( meta );
-    mtrkphi[trig]->Fill( mphi );
-    //   mtrketaphi[trig]->Fill( mphi,meta );
-    mnsigmaPI[trig]->Fill( nsigpi );
-    mnsigmaP[trig] ->Fill( nsigp );
-    mnsigmaK[trig] ->Fill( nsigk );
-    mnsigmaE[trig] ->Fill( nsige );
+      Double_t meta,mpt,mphi,mcharge,mdedx;
 
-    mtrketa_pt[trig]->Fill(mpt*mcharge,meta);
-    mtrkphi_pt[trig]->Fill(mpt*mcharge,mphi);
+      //change to global track
+      meta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
+      if(track->pMom().mag()!=0) Nprimarytracks++;
+      mphi=RotatePhi(track->gMom(event->primaryVertex(),event->bField()).phi());
+      mpt=track->gMom(event->primaryVertex(),event->bField()).perp();
+      mcharge=track->charge();
+      mdedx=track->dEdx();
 
-    mdedx_Pt[trig]->Fill(mpt*mcharge,track->dEdx());
-
-    // BEMC nSig
-    if(passBEMCCuts(event, track, trig))
-    {
-      mnSigmaPI_Pt_BEMC[trig][0]->Fill(mpt,nsigpi);
-      mnSigmaP_Pt_BEMC[trig][0]->Fill(mpt,nsigp);
-      mnSigmaE_Pt_BEMC[trig][0]->Fill(mpt,nsige);
-      mnSigmaK_Pt_BEMC[trig][0]->Fill(mpt,nsigk);
-      if(trkHFTflag == 1)
-      {
-        mnSigmaPI_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigpi);
-        mnSigmaP_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigp);
-        mnSigmaE_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsige);
-        mnSigmaK_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigk);
+      if(mcharge==0||meta==0||mphi==0||mdedx==0/*||track->pMom().mag()!=0*/) continue; //remove neutral, untracked, or primary tracks
+      hNTracks[trig]->Fill(4);
+      if(track->isHFTTrack()){
+        nhftmatchcount++;
+        if(fabs(event->primaryVertex().z()) < vZcutHFT[trig])      
+        {
+          trkHFTflag = 1; 
+          hNTracks[trig]->Fill(6);
+        }
       }
 
-      // SMD and BEMC
-      int checkSMD = passSMDCuts(event, track, trig);
-      if(checkSMD > 0 )// if passes either: 1 = loose cuts or 2 = tight cuts
-      {
-        mnSigmaPI_Pt_SMD[trig][0]->Fill(mpt,nsigpi);
-        mnSigmaP_Pt_SMD[trig][0]->Fill(mpt,nsigp);
-        mnSigmaE_Pt_SMD[trig][0]->Fill(mpt,nsige);
-        mnSigmaK_Pt_SMD[trig][0]->Fill(mpt,nsigk);
+      Float_t mmomentum=track->gMom(event->primaryVertex(),event->bField()).mag();
+      Double_t nsigpi=track->nSigmaPion();
+      Double_t nsigk=track->nSigmaKaon();
+      Double_t nsigp=track->nSigmaProton();
+      Double_t nsige=track->nSigmaElectron();
 
+      mtrkpt[trig]->Fill( mpt );
+      mtrketa[trig]->Fill( meta );
+      mtrkphi[trig]->Fill( mphi );
+      //   mtrketaphi[trig]->Fill( mphi,meta );
+      mnsigmaPI[trig]->Fill( nsigpi );
+      mnsigmaP[trig] ->Fill( nsigp );
+      mnsigmaK[trig] ->Fill( nsigk );
+      mnsigmaE[trig] ->Fill( nsige );
+
+      mtrketa_pt[trig]->Fill(mpt*mcharge,meta);
+      mtrkphi_pt[trig]->Fill(mpt*mcharge,mphi);
+
+      mdedx_Pt[trig]->Fill(mpt*mcharge,track->dEdx());
+
+      // BEMC nSig
+      if(passBEMCCuts(event, track, trig))
+      {
+        mnSigmaPI_Pt_BEMC[trig][0]->Fill(mpt,nsigpi);
+        mnSigmaP_Pt_BEMC[trig][0]->Fill(mpt,nsigp);
+        mnSigmaE_Pt_BEMC[trig][0]->Fill(mpt,nsige);
+        mnSigmaK_Pt_BEMC[trig][0]->Fill(mpt,nsigk);
         if(trkHFTflag == 1)
         {
-          mnSigmaPI_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigpi);
-          mnSigmaP_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigp);
-          mnSigmaE_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsige);
-          mnSigmaK_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigk);
+          mnSigmaPI_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigpi);
+          mnSigmaP_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigp);
+          mnSigmaE_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsige);
+          mnSigmaK_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigk);
+        }
+
+        // SMD and BEMC
+        int checkSMD = passSMDCuts(event, track, trig);
+        if(checkSMD > 0 )// if passes either: 1 = loose cuts or 2 = tight cuts
+        {
+          mnSigmaPI_Pt_SMD[trig][0]->Fill(mpt,nsigpi);
+          mnSigmaP_Pt_SMD[trig][0]->Fill(mpt,nsigp);
+          mnSigmaE_Pt_SMD[trig][0]->Fill(mpt,nsige);
+          mnSigmaK_Pt_SMD[trig][0]->Fill(mpt,nsigk);
+
+          if(trkHFTflag == 1)
+          {
+            mnSigmaPI_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigpi);
+            mnSigmaP_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigp);
+            mnSigmaE_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsige);
+            mnSigmaK_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigk);
+          }
+        }
+        // Tighter SMD Cuts
+        if( checkSMD == 2) // 2 = tight cuts
+        {
+          mnSigmaPI_Pt_SMD2[trig][0]->Fill(mpt,nsigpi);
+          mnSigmaP_Pt_SMD2[trig][0]->Fill(mpt,nsigp);
+          mnSigmaE_Pt_SMD2[trig][0]->Fill(mpt,nsige);
+          mnSigmaK_Pt_SMD2[trig][0]->Fill(mpt,nsigk);
+
+          if(trkHFTflag == 1)
+          {
+            mnSigmaPI_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigpi);
+            mnSigmaP_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigp);
+            mnSigmaE_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsige);
+            mnSigmaK_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigk);
+          }
         }
       }
-      // Tighter SMD Cuts
-      if( checkSMD == 2) // 2 = tight cuts
+      // TOF Information
+      if(passTOFCuts(event, track, trig))
       {
-        mnSigmaPI_Pt_SMD2[trig][0]->Fill(mpt,nsigpi);
-        mnSigmaP_Pt_SMD2[trig][0]->Fill(mpt,nsigp);
-        mnSigmaE_Pt_SMD2[trig][0]->Fill(mpt,nsige);
-        mnSigmaK_Pt_SMD2[trig][0]->Fill(mpt,nsigk);
+        Int_t tofpidid=track->bTofPidTraitsIndex();
+        if(tofpidid>0){
+          ntofmatchcount++;
+          StPicoBTofPidTraits* btofpidtrait=(StPicoBTofPidTraits*) mPicoDst->btofPidTraits(tofpidid);
 
-        if(trkHFTflag == 1)
-        {
-          mnSigmaPI_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigpi);
-          mnSigmaP_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigp);
-          mnSigmaE_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsige);
-          mnSigmaK_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigk);
-        }
-      }
-    }
-    // TOF Information
-    if(passTOFCuts(event, track, trig))
-    {
-      Int_t tofpidid=track->bTofPidTraitsIndex();
-      if(tofpidid>0){
-        ntofmatchcount++;
-        StPicoBTofPidTraits* btofpidtrait=(StPicoBTofPidTraits*) mPicoDst->btofPidTraits(tofpidid);
+          Float_t beta=btofpidtrait->btofBeta();
+          StPhysicalHelixD helix = track->helix();
+          if(beta<1e-4||beta>=(USHRT_MAX-1)/20000){
+            Float_t tof = btofpidtrait->btof();
+            StThreeVectorF btofHitPos = btofpidtrait->btofHitPos();
+            float L = tofPathLength(&vertexPos, &btofHitPos, helix.curvature()); 
+            if(tof>0) beta = L/(tof*(c_light/1.0e9));
+          }
+          Float_t tofbeta = 1./beta;
+          //Float_t tofbeta = 1./beta;
+          Double_t tofm2=mmomentum*mmomentum*( 1.0/(tofbeta*tofbeta)-1.0);
+          minvsBeta_Pt[trig]->Fill(mpt,tofbeta);
+          if(tofbeta>0){
+            mtofM2_Pt[trig]->Fill(mpt,tofm2);
+          }
 
-        Float_t beta=btofpidtrait->btofBeta();
-        StPhysicalHelixD helix = track->helix();
-        if(beta<1e-4||beta>=(USHRT_MAX-1)/20000){
-          Float_t tof = btofpidtrait->btof();
-          StThreeVectorF btofHitPos = btofpidtrait->btofHitPos();
-          float L = tofPathLength(&vertexPos, &btofHitPos, helix.curvature()); 
-          if(tof>0) beta = L/(tof*(c_light/1.0e9));
-        }
-        Float_t tofbeta = 1./beta;
-        //Float_t tofbeta = 1./beta;
-        Double_t tofm2=mmomentum*mmomentum*( 1.0/(tofbeta*tofbeta)-1.0);
-        minvsBeta_Pt[trig]->Fill(mpt,tofbeta);
-        if(tofbeta>0){
-          mtofM2_Pt[trig]->Fill(mpt,tofm2);
-        }
+          // For Purity
+          mdedxvsBeta    [trig]->Fill(tofbeta, track->dEdx());
+          mnSigmaEvsBeta [trig]->Fill(tofbeta, nsige);
+          mnSigmaPIvsBeta[trig]->Fill(tofbeta, nsigpi);
+          mnSigmaKvsBeta [trig]->Fill(tofbeta, nsigk);
+          mnSigmaPvsBeta [trig]->Fill(tofbeta, nsigp);
+          mtofm2vsBeta   [trig]->Fill(tofbeta, tofm2);
 
-        // For Purity
-        mdedxvsBeta    [trig]->Fill(tofbeta, track->dEdx());
-        mnSigmaEvsBeta [trig]->Fill(tofbeta, nsige);
-        mnSigmaPIvsBeta[trig]->Fill(tofbeta, nsigpi);
-        mnSigmaKvsBeta [trig]->Fill(tofbeta, nsigk);
-        mnSigmaPvsBeta [trig]->Fill(tofbeta, nsigp);
-        mtofm2vsBeta   [trig]->Fill(tofbeta, tofm2);
+          mnSigmaPI_Pt_TOF[trig][0]->Fill(mpt,nsigpi);
+          mnSigmaP_Pt_TOF[trig][0]->Fill(mpt,nsigp);
+          mnSigmaE_Pt_TOF[trig][0]->Fill(mpt,nsige);
+          mnSigmaK_Pt_TOF[trig][0]->Fill(mpt,nsigk);
 
-        mnSigmaPI_Pt_TOF[trig][0]->Fill(mpt,nsigpi);
-        mnSigmaP_Pt_TOF[trig][0]->Fill(mpt,nsigp);
-        mnSigmaE_Pt_TOF[trig][0]->Fill(mpt,nsige);
-        mnSigmaK_Pt_TOF[trig][0]->Fill(mpt,nsigk);
-
-        if(trkHFTflag == 1)
-        {
-          mnSigmaPI_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigpi);
-          mnSigmaP_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigp);
-          mnSigmaE_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsige);
-          mnSigmaK_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigk);
-        }
-
-        if(kaonEnhCutLow < tofbeta && tofbeta < kaonEnhCutHigh)
-        {
-          mnSigmaE_KEnh_Pt[trig][0]->Fill(mpt,nsige);
-          mnSigmaK_KEnh_Pt[trig][0]->Fill(mpt,nsigk);
           if(trkHFTflag == 1)
           {
-            mnSigmaE_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
-            mnSigmaK_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
+            mnSigmaPI_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigpi);
+            mnSigmaP_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigp);
+            mnSigmaE_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsige);
+            mnSigmaK_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigk);
           }
-        }
 
-        if(pionEnhCutLow < tofbeta && tofbeta < pionEnhCutHigh)
-        {
-          mnSigmaE_PiEnh_Pt [trig][0]->Fill(mpt,nsige);
-          mnSigmaPi_PiEnh_Pt[trig][0]->Fill(mpt,nsigpi);
-          if(trkHFTflag == 1)
+          if(kaonEnhCutLow < tofbeta && tofbeta < kaonEnhCutHigh)
           {
-            mnSigmaE_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
-            mnSigmaPi_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
+            mnSigmaE_KEnh_Pt[trig][0]->Fill(mpt,nsige);
+            mnSigmaK_KEnh_Pt[trig][0]->Fill(mpt,nsigk);
+            if(trkHFTflag == 1)
+            {
+              mnSigmaE_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
+              mnSigmaK_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
+            }
           }
-        }
 
-        if(protonEnhCutLow < tofbeta && tofbeta < protonEnhCutHigh)
-        {
-          mnSigmaE_PEnh_Pt[trig][0]->Fill(mpt,nsige);
-          mnSigmaP_PEnh_Pt[trig][0]->Fill(mpt,nsigp);
-          if(trkHFTflag == 1)
+          if(pionEnhCutLow < tofbeta && tofbeta < pionEnhCutHigh)
           {
-            mnSigmaE_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
-            mnSigmaP_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
+            mnSigmaE_PiEnh_Pt [trig][0]->Fill(mpt,nsige);
+            mnSigmaPi_PiEnh_Pt[trig][0]->Fill(mpt,nsigpi);
+            if(trkHFTflag == 1)
+            {
+              mnSigmaE_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
+              mnSigmaPi_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
+            }
           }
+
+          if(protonEnhCutLow < tofbeta && tofbeta < protonEnhCutHigh)
+          {
+            mnSigmaE_PEnh_Pt[trig][0]->Fill(mpt,nsige);
+            mnSigmaP_PEnh_Pt[trig][0]->Fill(mpt,nsigp);
+            if(trkHFTflag == 1)
+            {
+              mnSigmaE_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
+              mnSigmaP_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
+            }
+          }
+
+          Int_t tofcellid=   btofpidtrait->btofCellId();
+          Int_t toftray= (int)tofcellid/192 + 1;
+          Int_t tofmodule= (int)((tofcellid%192)/6.)+1;
+
+          Float_t toflocaly = btofpidtrait->btofYLocal();
+          Float_t toflocalz = btofpidtrait->btofZLocal();
+          // Float_t tofhitPosx = btofpidtrait->btofHitPos().x();
+          // Float_t tofhitPosy = btofpidtrait->btofHitPos().y();
+          // Float_t tofhitPosz = btofpidtrait->btofHitPos().z();
+          if(fillhistflag){
+            mtoftray_localY[trig]->Fill(toftray,toflocaly);
+            mtoftray_localZ[trig]->Fill(toftray,toflocalz);
+            mtoftray_matchflag[trig]->Fill(toftray,btofpidtrait->btofMatchFlag());
+            mtoftray_module[trig]->Fill(toftray,tofmodule);
+
+          }//
         }
-
-        Int_t tofcellid=   btofpidtrait->btofCellId();
-        Int_t toftray= (int)tofcellid/192 + 1;
-        Int_t tofmodule= (int)((tofcellid%192)/6.)+1;
-
-        Float_t toflocaly = btofpidtrait->btofYLocal();
-        Float_t toflocalz = btofpidtrait->btofZLocal();
-        // Float_t tofhitPosx = btofpidtrait->btofHitPos().x();
-        // Float_t tofhitPosy = btofpidtrait->btofHitPos().y();
-        // Float_t tofhitPosz = btofpidtrait->btofHitPos().z();
-        if(fillhistflag){
-          mtoftray_localY[trig]->Fill(toftray,toflocaly);
-          mtoftray_localZ[trig]->Fill(toftray,toflocalz);
-          mtoftray_matchflag[trig]->Fill(toftray,btofpidtrait->btofMatchFlag());
-          mtoftray_module[trig]->Fill(toftray,tofmodule);
-
-        }//
-      }
-    }// End TOF
+      }// End TOF
+    }//end "isGoodTrack" with eta cut
   }//loop of all tracks
   return kStOK;
 }//end of main filling fucntion
 
-//=====================ZAOCHEN'S FUNCTION=======================================
+// --------------- dVz Study Loop ---------------
+Int_t StPicoElecPurityMaker::dVzStudy(StPicoEvent* event){
 
+  Int_t trig = 3; // Only for BHT3
+  if(! passEventCuts_NodVz(event,trig) ) return kStOK;
+  Int_t numberoftracks = mPicoDst->numberOfTracks();
+  StThreeVectorF vertexPos;
+  vertexPos = event->primaryVertex();
+
+
+  // TRACK LOOP
+  for(int i=0; i<numberoftracks; i++){
+    StPicoTrack* track=(StPicoTrack*) mPicoDst->track(i);
+    Bool_t isGoodTrack = passGoodTrack(event,track,trig);
+    Double_t meta,mpt,mphi,mcharge,mdedx;
+    meta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
+    mphi=RotatePhi(track->gMom(event->primaryVertex(),event->bField()).phi());
+    mpt=track->gMom(event->primaryVertex(),event->bField()).perp();
+    mcharge=track->charge();
+    mdedx=track->dEdx();
+    Double_t vzvpd = event->vzVpd();
+    Double_t vztpc = event->primaryVertex().z();
+    Double_t dvz = vzvpd - vztpc;
+
+    if(mcharge==0||meta==0||mphi==0||mdedx==0/*||track->pMom().mag()!=0*/) continue; //remove neutral, untracked, or primary tracks
+
+    // BEMC nSig
+    if(passBEMCCuts(event, track, trig))
+    {
+      int checkSMD = passSMDCuts(event, track, trig);
+      if( checkSMD == 2) // 2 = tight cuts
+      {
+        mTPCvsVPD_Vz->Fill(vztpc,vzvpd);
+        mTPCvsDVz -> Fill(vztpc,dvz);
+      }
+    }
+  }
+  return kStOK;
+}
+
+//=====================ZAOCHEN'S FUNCTION=======================================
 
 bool StPicoElecPurityMaker::isBHT1(StPicoEvent *event)
 {
@@ -667,7 +756,7 @@ Bool_t StPicoElecPurityMaker::passGoodTrack_NoEta(StPicoEvent* event, StPicoTrac
 Int_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track, int trig)
 {
   // Get SMD info
-  
+
   // Get BEMC info
   Int_t emcpidtraitsid=track->emcPidTraitsIndex();
   double mpoe;
@@ -820,6 +909,16 @@ Bool_t StPicoElecPurityMaker::passEventCuts(StPicoEvent* event, int trig)
   Double_t vztpc = event->primaryVertex().z();
   Double_t dvz = vzvpd - vztpc;
   if(fabs(vztpc) < vZcut[trig] && fabs(dvz) < dvZcut[trig]) return true;
+  else return false;
+}
+
+//----------------------------------------------------------------
+Bool_t StPicoElecPurityMaker::passEventCuts_NodVz(StPicoEvent* event, int trig)
+{
+  Double_t vzvpd = event->vzVpd();
+  Double_t vztpc = event->primaryVertex().z();
+  Double_t dvz = vzvpd - vztpc;
+  if(fabs(vztpc) < vZcut[trig]) return true;
   else return false;
 }
 

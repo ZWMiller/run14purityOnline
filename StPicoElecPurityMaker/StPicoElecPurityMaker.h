@@ -25,6 +25,7 @@ class StPicoElecPurityMaker : public StMaker {
      Bool_t IspassTOFcuts(StPicoTrack*);
      Bool_t IspassBEMCcuts(StPicoTrack*);
      Bool_t passEventCuts(StPicoEvent*,int);  // ZWM
+     Bool_t passEventCuts_NodVz(StPicoEvent*,int);  // ZWM
      Bool_t isBHT1(StPicoEvent*);
      Bool_t isBHT2(StPicoEvent*);
      Bool_t isBHT3(StPicoEvent*);
@@ -41,6 +42,7 @@ class StPicoElecPurityMaker : public StMaker {
      void    DeclareHistograms();
      void    WriteHistograms();
      Int_t    FillHistograms(Int_t, StPicoEvent*);
+     Int_t    dVzStudy(StPicoEvent*);
 
      void  SetDefaultCuts();               // ZWM
 
@@ -208,6 +210,16 @@ class StPicoElecPurityMaker : public StMaker {
     TH2F*      mnSigmaK_KEnh_Pt[4][2];
     TH2F*      mnSigmaPi_PiEnh_Pt[4][2];
     TH2F*      mnSigmaP_PEnh_Pt[4][2];
+
+    // For Eta Dependence Study
+    TH3F*      mnSigmaE_Pt_Eta_SMD[4];
+    TH3F*      mnSigmaE_Pt_Eta_SMD2[4];
+    TH3F*      mnSigmaE_Pt_Eta_BEMC[4];
+
+    // For dVz cut study
+    TH2F* mTPCvsVPD_Vz;
+    TH2F* mTPCvsDVz;
+
     ClassDef(StPicoElecPurityMaker, 1)
 };
 
