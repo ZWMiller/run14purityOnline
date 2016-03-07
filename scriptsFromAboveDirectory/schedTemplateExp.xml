@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE note [
-<!ENTITY runnumber "15081015">
+<!ENTITY runnumber "15167014">
 ]>
-<!-- Created on Sat Jan 23 12:31:50 2016 -->
+<!-- Created on Tue Feb 23 13:57:30 2016 -->
 <job maxFilesPerProcess="1" filesPerHour="1" fileListSyntax="xrootd" simulateSubmission="false">
   <command>
     starver SL15c
@@ -24,9 +24,9 @@
   <!--  <output fromScratch="*picoDst.root" toURL="file:/star/u/zamiller/run14NPE/PicoProd/" /> -->
 
   <Generator>
-    <Location>/star/u/zamiller/run14NPE/report/</Location>
-    <ScriptLocation>/star/u/zamiller/run14NPE/csh/</ScriptLocation>
-    <ListLocation>/star/u/zamiller/run14NPE/list/</ListLocation>
+    <Location>/star/data01/pwg/zamiller/PurityProd/Log/report/</Location>
+    <ScriptLocation>/star/data01/pwg/zamiller/PurityProd/Log/csh/</ScriptLocation>
+    <ListLocation>/star/data01/pwg/zamiller/PurityProd/Log/list/</ListLocation>
   </Generator>
 
   <output fromScratch="*purity.root" toURL="file:/star/data01/pwg/zamiller/PurityProd/" />

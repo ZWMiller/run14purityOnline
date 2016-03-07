@@ -26,6 +26,7 @@ class StPicoElecPurityMaker : public StMaker {
      Bool_t IspassBEMCcuts(StPicoTrack*);
      Bool_t passEventCuts(StPicoEvent*,int);  // ZWM
      Bool_t passEventCuts_NodVz(StPicoEvent*,int);  // ZWM
+     Bool_t checkHotTower(int, int); //ZWM
      Bool_t isBHT1(StPicoEvent*);
      Bool_t isBHT2(StPicoEvent*);
      Bool_t isBHT3(StPicoEvent*);
@@ -109,6 +110,9 @@ class StPicoElecPurityMaker : public StMaker {
    TString    mOutName;
 
      Int_t   mNBadRuns;       
+     Int_t   mNHotTower1;
+     Int_t   mNHotTower2;
+     Int_t   mNHotTower3;
      Int_t  trkHFTflag;
     
    TFile*	   fout;

@@ -22,8 +22,8 @@ void makePicoDst(const Int_t runnumber=15094070,
 		const Char_t *inputFile="root://xrdstar.rcf.bnl.gov:1095//home/starlib/home/starreco/reco/AuAu_200_production_mid_2014/ReversedFullField/P15ic/2014/094/15094070/st_physics_15094070_raw_1000019.MuDst.root",
 		const bool creatingPhiWgt = kFALSE, const int prodMod = 0, const int emcMode=1
 		){
-	Int_t nEvents = 10000000;
-	//Int_t nEvents = 1000;	
+	Int_t nEvents = 100000000;
+ // nEvents = 1000;	
 	//Load all the System libraries
 
 	gSystem->Load("libTable");

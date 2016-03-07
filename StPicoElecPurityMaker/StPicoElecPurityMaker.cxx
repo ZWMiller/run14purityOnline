@@ -22,6 +22,7 @@
 #include<iostream>
 #include<fstream>
 #include "mBadRunList.h"
+#include "mHotTowerList.h"
 #include "StBTofUtil/tofPathLength.hh"
 #define USHRT_MAX 65535
 
@@ -31,7 +32,7 @@ Int_t runIndex;
 Int_t randomId;
 map<Int_t,Int_t> mTotalRunId;
 Int_t mTotalRun = 599;//603
-
+Bool_t DEBUG = kFALSE;
 
 ClassImp(StPicoElecPurityMaker)
 
@@ -45,6 +46,9 @@ ClassImp(StPicoElecPurityMaker)
   mOutName = outName;
 
   mNBadRuns = sizeof(mBadRuns)/sizeof(int);
+  mNHotTower1 = sizeof(mHotTower1)/sizeof(int);
+  mNHotTower2 = sizeof(mHotTower2)/sizeof(int);
+  mNHotTower3 = sizeof(mHotTower3)/sizeof(int);
 
   // ZWM Add (declare default cut values, can change in Ana with same function)
   SetDefaultCuts();
@@ -214,9 +218,9 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mnSigmaPi_PiEnh_Pt[tr][1] = new TH2F(Form("nSigmaPi_PiEnh_Pt_HFT_%i",tr),"nSigmaPi vs pT with HFT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
 
     //--------------------Eta Dependence Study----------------
-    mnSigmaE_Pt_Eta_SMD[tr] = new TH3F(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,200,-2,2);
-    mnSigmaE_Pt_Eta_SMD2[tr] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,200,-2,2);
-    mnSigmaE_Pt_Eta_BEMC[tr] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,200,-2,2);
+    mnSigmaE_Pt_Eta_SMD[tr] = new TH3F(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,40,-2,2);
+    mnSigmaE_Pt_Eta_SMD2[tr] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,40,-2,2);
+    mnSigmaE_Pt_Eta_BEMC[tr] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,40,-2,2);
   }
   // -------- dVz Study -------
   mTPCvsVPD_Vz = new TH2F("TPCvsVPD_Vz","TPC vs VPD Vz (no dVz Cut)",400,-200,200,400,-200,200);
@@ -243,6 +247,7 @@ Int_t StPicoElecPurityMaker::Make() {
   }
 
   StPicoEvent* event=mPicoDst->event();
+  if(DEBUG)std::cout << "Zach Out: Befor Bad Run" << endl;
   //=================zaochen add====================
   if(!event) return kStOK;
   //=================event selection================
@@ -250,7 +255,7 @@ Int_t StPicoElecPurityMaker::Make() {
   for(int i=0;i<mNBadRuns;i++){
     if(runId==mBadRuns[i]) return kStOK;
   }
-
+  if(DEBUG)std::cout << "Zach Out: After Bad Run" << endl;
   trig = 99;
   trigCounter=0.; // Used to find overlaps in samples. Modified after checking event cuts. Re-zero each event.
   if( event->isMinBias()) {FillHistograms(0,event);} // Decide what type of trigger you have, use to select what histos to fill
@@ -267,9 +272,11 @@ Int_t StPicoElecPurityMaker::Make() {
 
 Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
 {
+  if(DEBUG)std::cout << "Zach Out: In Fill Histograms trig" << trig << endl;
   //=================event selection================
   hNEvents[trig]->Fill(0);
   if(! passEventCuts(event,trig) ) return kStOK;
+  if(DEBUG)std::cout << "Zach Out: After Event Cut" << endl;
   hNEvents[trig]->Fill(2);
   if(event->primaryVertex().z() < 6.)
     hNEvents[trig]->Fill(4);
@@ -280,22 +287,6 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
   if(trig == 2) trigCounter += 4;
   if(trig == 3) trigCounter += 8;
 
-  if(fillhistflag){	
-
-    Int_t RUNID = event->runId();
-    map<Int_t, Int_t>::iterator iter = mTotalRunId.find(RUNID);
-    if(iter != mTotalRunId.end())
-      runIndex = iter->second;
-    else{
-      runIndex = -1;
-      cout<<"sorry, no runNumber in runNumber list"<<endl;
-      cout<<"the RUNID:="<<RUNID<<endl;
-    }
-
-    //if(runIndex<0)return kStOK;
-
-  }//
-
   //int triggerWord = event->triggerWord();
   //	if(triggerWord>>19 & 0x1
   Int_t triggerWORD=event->triggerWord();
@@ -304,16 +295,8 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
 
   }
 
-  //	runidfiles<<event->runId()<<endl;
-
-  //cout<<"run number is:"<<event->runId()<<endl;
-
-  //======================ALL QA PLOTS ===============
-
-
-
-
   //---------------event information----------------------------
+  if(DEBUG)std::cout << "Zach Out: Get Event Info" << endl;
   Double_t vzvpd=event->vzVpd();
   Double_t vztpc=event->primaryVertex().z();
   Double_t vxtpc=event->primaryVertex().x();
@@ -379,6 +362,7 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
   Float_t particleM[3]={0.938,0.140,0.494};
 
   // TRACK LOOP
+  if(DEBUG)std::cout << "Zach Out: At Track Loop" << endl;
   for(int i=0; i<numberoftracks; i++){
 
     StPicoTrack* track=(StPicoTrack*) mPicoDst->track(i);
@@ -412,6 +396,7 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
       // BEMC nSig
       if(passBEMCCuts(event, track, trig))
       {
+        if(DEBUG)std::cout << "Zach Out: At first 3D" << endl;
         mnSigmaE_Pt_Eta_BEMC[trig]->Fill(mpt,nsige,meta);
 
         // SMD and BEMC
@@ -625,8 +610,10 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
 // --------------- dVz Study Loop ---------------
 Int_t StPicoElecPurityMaker::dVzStudy(StPicoEvent* event){
 
+  if(DEBUG)std::cout << "Zach Out: In dVz Study" << endl;
   Int_t trig = 3; // Only for BHT3
   if(! passEventCuts_NodVz(event,trig) ) return kStOK;
+  if(DEBUG)std::cout << "Zach Out: pass noDVz Event Cut" << endl;
   Int_t numberoftracks = mPicoDst->numberOfTracks();
   StThreeVectorF vertexPos;
   vertexPos = event->primaryVertex();
@@ -723,6 +710,7 @@ Bool_t StPicoElecPurityMaker::passGoodTrack(StPicoEvent* event, StPicoTrack* tra
 // ----------------------------------------------------------
 Bool_t StPicoElecPurityMaker::passGoodTrack_NoEta(StPicoEvent* event, StPicoTrack* track, int trig)
 {
+  if(DEBUG)std::cout << "Zach Out: passGoodTrack_NoEta" << endl;
   double fithitfrac, chargeq, fhitsdEdx, fhitsFit,feta; 
   double pt = track->gMom(event->primaryVertex(),event->bField()).perp();
   feta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
@@ -826,6 +814,10 @@ Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* trac
     nEta = emcpidtraits->nEta();
     nPhi = emcpidtraits->nPhi();
     mpoe = track->gMom(event->primaryVertex(),event->bField()).mag()/emcpidtraits->e();
+    // Check if hot tower. If so, return BEMC failure
+    int runId = event->runId();
+    if(checkHotTower(runId,btowId))
+      return false;
     // get DSM Adc by finding the tower with same id as trk, then getting that ADC
     int nTrgs = mPicoDst->numberOfEmcTriggers();
     for(int j=0;j<nTrgs;j++){
@@ -843,7 +835,7 @@ Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* trac
     }
   }
   else 
-    mpoe = 0.0; // if no BEMC, set value = 0
+    return false;
 
   double mpt  = track->gMom(event->primaryVertex(),event->bField()).perp();
   //cout << "pT: " << mpt << " p/E: " << mpoe << " e0: " << e0 << " dsmadc: " << dsmadc << endl;
@@ -851,6 +843,38 @@ Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* trac
     return true;
   else 
     return false;
+}
+
+Bool_t StPicoElecPurityMaker::checkHotTower(int runId, int towId)
+{
+  if(DEBUG)std::cout << "Zach Out: checkHotTower" << endl;
+  if(runId >= 15071020 && runId <= 15086063) // range 1 of hot tower ist
+  {  
+    for(int i=0; i < mNHotTower1; i++)
+    {
+      if(towId == mHotTower1[i])
+        return true;
+    }
+  }
+
+  if(runId >= 15086064 && runId <= 15128024) // range 2 of hot tower ist
+  {  
+    for(int i=0; i < mNHotTower2; i++)
+    {
+      if(towId == mHotTower2[i])
+        return true;
+    }
+  }
+  
+  if(runId >= 15128025 && runId <= 15167014) // range 3 of hot tower ist
+  {  
+    for(int i=0; i < mNHotTower3; i++)
+    {
+      if(towId == mHotTower3[i])
+        return true;
+    }
+  }
+  return false;
 }
 
 Bool_t StPicoElecPurityMaker::passTOFCuts(StPicoEvent* event, StPicoTrack* track, int trig)
@@ -941,9 +965,9 @@ void StPicoElecPurityMaker::SetDefaultCuts()
   setNSigPCuts(-20,20);
   setNSigKCuts(-20,20);
   setNSigPiCuts(-20,20);
-  setvZCuts(0,6.0,4.0);  // (vZ, delVz)
-  setvZCuts(1,30.0,4.0); // (vZ, delVz)
-  setvZCuts(2,30.0,4.0); // (vZ, delVz)
+  setvZCuts(0,6.0 ,3.0);  // (vZ, delVz)
+  setvZCuts(1,30.0,3.0); // (vZ, delVz)
+  setvZCuts(2,30.0,3.0); // (vZ, delVz)
   setvZCuts(3,30.0,30.0); // (vZ, delVz)
   setvZCutsHFT(0,6.0,4.0);  // (vZ, delVz)
   setvZCutsHFT(1,6.0,4.0); // (vZ, delVz)
