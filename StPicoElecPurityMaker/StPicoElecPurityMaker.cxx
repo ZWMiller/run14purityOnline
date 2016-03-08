@@ -146,6 +146,7 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mtrketa[tr] = new TH1F(Form("trketa_%i",tr),"eta ",200,-2,2);
     mtrkphi[tr] = new TH1F(Form("trkphi_%i",tr),"the phi distribution of all tracks",200,0,6.3);
 
+    /*
     mnSigmaPI_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaPI_Pt_BEMC_%i",tr),"nSigmapion vs Pt of all tracks using BEMC; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaP_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaP_Pt_BEMC_%i",tr),"nSigmaproton vs Pt of all tracks using BEMC; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaK_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaK_Pt_BEMC_%i",tr),"nSigmaK vs Pt of all tracks using BEMC; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
@@ -178,6 +179,7 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mnSigmaP_Pt_TOF[tr][1] = new TH2F(Form("nSigmaP_Pt_TOF_HFT_%i",tr),"nSigmaP vs Pt of HFT tracks using TOF; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaK_Pt_TOF[tr][1] = new TH2F(Form("nSigmaK_Pt_TOF_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks using TOF; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaE_Pt_TOF[tr][1] = new TH2F(Form("nSigmaE_Pt_TOF_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+    */
 
     mnsigmaPI[tr] = new TH1F(Form("nsigmaPI_%i",tr),"nsigmapion of all tracks",200,-nSigLim,nSigLim);
     mnsigmaK[tr] = new TH1F(Form("nsigmaK_%i",tr),"nsigmaKaon of all tracks",200,-nSigLim,nSigLim);
@@ -185,26 +187,26 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mnsigmaP[tr] = new TH1F(Form("nsigmaP_%i",tr),"nsigmaProton of all tracks",200,-nSigLim,nSigLim);
 
     mdedx_Pt[tr] = new TH2F(Form("Dedx_Pt_%i",tr),"dedx(keV/cm) vs Pt; Pt; Dedx;",200,-20,20,250,0,10);
-    minvsBeta_Pt[tr] = new TH2F(Form("invsBeta_Pt_%i",tr),"1/Beta vs Pt; Pt; 1/beta;",300,0,6,400,betaLow,betaHigh);
-    mtofM2_Pt[tr] = new TH2F(Form("tofM2_Pt_%i",tr),"tofM2 vs momentum; P; tofM2;",200,0,20,200,-0.5,4.5);
+    //minvsBeta_Pt[tr] = new TH2F(Form("invsBeta_Pt_%i",tr),"1/Beta vs Pt; Pt; 1/beta;",300,0,6,400,betaLow,betaHigh);
+    //mtofM2_Pt[tr] = new TH2F(Form("tofM2_Pt_%i",tr),"tofM2 vs momentum; P; tofM2;",200,0,20,200,-0.5,4.5);
 
-    mdedxvsBeta[tr] = new TH2F(Form("ndedxvsBeta_%i",tr),"de/dX vs 1/Beta; ",400,betaLow,betaHigh,250,0,10);
-    mnSigmaEvsBeta[tr] = new TH2F(Form("nSigmaEvsBeta_%i",tr),"nSigmaE vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
+    //mnSigmaEvsBeta[tr] = new TH2F(Form("nSigmaEvsBeta_%i",tr),"nSigmaE vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
+    /*mdedxvsBeta[tr] = new TH2F(Form("ndedxvsBeta_%i",tr),"de/dX vs 1/Beta; ",400,betaLow,betaHigh,250,0,10);
     mnSigmaPIvsBeta[tr] = new TH2F(Form("nSigmaPIvsBeta_%i",tr),"nSigmaPI vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
     mnSigmaKvsBeta[tr] = new TH2F(Form("nSigmaKvsBeta_%i",tr),"nSigmaK vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
     mnSigmaPvsBeta[tr] = new TH2F(Form("nSigmaPvsBeta_%i",tr),"nSigmaP vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
     mtofm2vsBeta[tr] = new TH2F(Form("ntofm2vsBeta_%i",tr),"tofM2 vs 1/Beta; ",400,betaLow,betaHigh,200,-0.5,4.5);
-
     mtoftray_localY[tr] = new TH2F(Form("toftray_localY_%i",tr),"localY VS toftray; tray; localY;",120,0,120,100,-4,4);
     mtoftray_localZ[tr] = new TH2F(Form("toftray_localZ_%i",tr),"localZ VS toftray; tray; localZ;",120,0,120,100,-4,4);
     //mtofhitPosXYZ[tr] = new TH3F(Form("tofhitPosXYZ_%i",tr),"tofhitPosXYZ",400,-200,200,400,-200,200,400,-200,200);
     mtoftray_matchflag[tr] = new TH2F(Form("toftray_matchflag_%i",tr),"toftray_matchflag;tofTray; tofmatchflag;",120,0,120,4,0,4);
     mtoftray_module[tr] = new TH2F(Form("toftray_module_%i",tr),"toftray_module;tofTray; module",120,0,120,40,0,40);
+    */
 
     //---------------------mtd------------------------
     hNTracks[tr] = new TH1F(Form("hNTracks_%i",tr),"Number of Tracks before (0) and after cuts (2);",10,0,10);
 
-    mnSigmaE_KEnh_Pt[tr][0] = new TH2F(Form("nSigmaE_KEnh_Pt_%i",tr),"nSigmaE vs pT;pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+    /*mnSigmaE_KEnh_Pt[tr][0] = new TH2F(Form("nSigmaE_KEnh_Pt_%i",tr),"nSigmaE vs pT;pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaE_PEnh_Pt[tr][0] = new TH2F(Form("nSigmaE_PEnh_Pt_%i",tr),"nSigmaE vs pT;pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaE_PiEnh_Pt[tr][0] = new TH2F(Form("nSigmaE_PiEnh_Pt_%i",tr),"nSigmaE vs pT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaE_KEnh_Pt[tr][1] = new TH2F(Form("nSigmaE_KEnh_Pt_HFT_%i",tr),"nSigmaE vs pT with HFT;pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
@@ -216,11 +218,16 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mnSigmaK_KEnh_Pt[tr][1] = new TH2F(Form("nSigmaK_KEnh_Pt_HFT_%i",tr),"nSigmaK vs pT with HFT;pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaP_PEnh_Pt[tr][1] = new TH2F(Form("nSigmaP_PEnh_Pt_HFT_%i",tr),"nSigmaP vs pT with HFT;pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
     mnSigmaPi_PiEnh_Pt[tr][1] = new TH2F(Form("nSigmaPi_PiEnh_Pt_HFT_%i",tr),"nSigmaPi vs pT with HFT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-
+   */
     //--------------------Eta Dependence Study----------------
-    mnSigmaE_Pt_Eta_SMD[tr] = new TH3F(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,40,-2,2);
-    mnSigmaE_Pt_Eta_SMD2[tr] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,40,-2,2);
-    mnSigmaE_Pt_Eta_BEMC[tr] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,40,-2,2);
+    mnSigmaE_Pt_Eta_SMD[tr][0]  = new TH3F(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+    mnSigmaE_Pt_Eta_SMD2[tr][0] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+    mnSigmaE_Pt_Eta_BEMC[tr][0] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+    mnSigmaE_Pt_Eta_TOF[tr][0]  = new TH3F(Form("nSigmaE_Pt_Eta_TOF_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+    mnSigmaE_Pt_Eta_TOF[tr][1]  = new TH3F(Form("nSigmaE_Pt_Eta_TOF_HFT_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+    mnSigmaE_Pt_Eta_SMD[tr][1]  = new TH3F(Form("nSigmaE_Pt_Eta_SMD_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+    mnSigmaE_Pt_Eta_SMD2[tr][1] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+    mnSigmaE_Pt_Eta_BEMC[tr][1] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_HFT_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
   }
   // -------- dVz Study -------
   mTPCvsVPD_Vz = new TH2F("TPCvsVPD_Vz","TPC vs VPD Vz (no dVz Cut)",400,-200,200,400,-200,200);
@@ -374,7 +381,7 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
     Bool_t isGoodTrack_NoEta = passGoodTrack_NoEta(event,track,trig);
     if(!isGoodTrack && !isGoodTrack_NoEta) continue;
 
-    if(isGoodTrack_NoEta)
+    /*if(isGoodTrack_NoEta)
     {
 
       hNTracks[trig]->Fill(10);
@@ -390,7 +397,7 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
       mcharge=track->charge();
       mdedx=track->dEdx();
 
-      if(mcharge==0||meta==0||mphi==0||mdedx==0/*||track->pMom().mag()!=0*/) continue; //remove neutral, untracked, or primary tracks
+      if(mcharge==0||meta==0||mphi==0||mdedx==0/*||track->pMom().mag()!=0*//*) continue; //remove neutral, untracked, or primary tracks
       hNTracks[trig]->Fill(12);
 
       // BEMC nSig
@@ -411,9 +418,9 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           mnSigmaE_Pt_Eta_SMD2[trig]->Fill(mpt,nsige,meta);
         }
       }
-    }
+    }*/
 
-    if(isGoodTrack){ 
+    if(isGoodTrack_NoEta){ 
       hNTracks[trig]->Fill(2);
 
       Double_t meta,mpt,mphi,mcharge,mdedx;
@@ -460,49 +467,59 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
       // BEMC nSig
       if(passBEMCCuts(event, track, trig))
       {
-        mnSigmaPI_Pt_BEMC[trig][0]->Fill(mpt,nsigpi);
+        mnSigmaE_Pt_Eta_BEMC[trig][0]->Fill(mpt,nsige,meta);
+        /*mnSigmaPI_Pt_BEMC[trig][0]->Fill(mpt,nsigpi);
         mnSigmaP_Pt_BEMC[trig][0]->Fill(mpt,nsigp);
         mnSigmaE_Pt_BEMC[trig][0]->Fill(mpt,nsige);
         mnSigmaK_Pt_BEMC[trig][0]->Fill(mpt,nsigk);
+        */
         if(trkHFTflag == 1)
         {
-          mnSigmaPI_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigpi);
+          mnSigmaE_Pt_Eta_BEMC[trig][trkHFTflag]->Fill(mpt,nsige,meta);
+          /*mnSigmaPI_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigpi);
           mnSigmaP_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigp);
           mnSigmaE_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsige);
           mnSigmaK_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigk);
+          */
         }
 
         // SMD and BEMC
         int checkSMD = passSMDCuts(event, track, trig);
         if(checkSMD > 0 )// if passes either: 1 = loose cuts or 2 = tight cuts
         {
-          mnSigmaPI_Pt_SMD[trig][0]->Fill(mpt,nsigpi);
+          mnSigmaE_Pt_Eta_SMD[trig][0]->Fill(mpt,nsige,meta);
+          /*mnSigmaPI_Pt_SMD[trig][0]->Fill(mpt,nsigpi);
           mnSigmaP_Pt_SMD[trig][0]->Fill(mpt,nsigp);
           mnSigmaE_Pt_SMD[trig][0]->Fill(mpt,nsige);
           mnSigmaK_Pt_SMD[trig][0]->Fill(mpt,nsigk);
-
+          */
           if(trkHFTflag == 1)
           {
-            mnSigmaPI_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigpi);
+            mnSigmaE_Pt_Eta_SMD[trig][trkHFTflag]->Fill(mpt,nsige,meta);
+            /*mnSigmaPI_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigpi);
             mnSigmaP_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigp);
             mnSigmaE_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsige);
             mnSigmaK_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigk);
+            */
           }
         }
         // Tighter SMD Cuts
         if( checkSMD == 2) // 2 = tight cuts
         {
-          mnSigmaPI_Pt_SMD2[trig][0]->Fill(mpt,nsigpi);
+          mnSigmaE_Pt_Eta_SMD2[trig][0]->Fill(mpt,nsige,meta);
+          /*mnSigmaPI_Pt_SMD2[trig][0]->Fill(mpt,nsigpi);
           mnSigmaP_Pt_SMD2[trig][0]->Fill(mpt,nsigp);
           mnSigmaE_Pt_SMD2[trig][0]->Fill(mpt,nsige);
           mnSigmaK_Pt_SMD2[trig][0]->Fill(mpt,nsigk);
-
+          */
           if(trkHFTflag == 1)
           {
-            mnSigmaPI_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigpi);
+            mnSigmaE_Pt_Eta_SMD2[trig][trkHFTflag]->Fill(mpt,nsige,meta);
+            /*mnSigmaPI_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigpi);
             mnSigmaP_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigp);
             mnSigmaE_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsige);
             mnSigmaK_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigk);
+            */
           }
         }
       }
@@ -525,81 +542,44 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           Float_t tofbeta = 1./beta;
           //Float_t tofbeta = 1./beta;
           Double_t tofm2=mmomentum*mmomentum*( 1.0/(tofbeta*tofbeta)-1.0);
-          minvsBeta_Pt[trig]->Fill(mpt,tofbeta);
-          if(tofbeta>0){
-            mtofM2_Pt[trig]->Fill(mpt,tofm2);
-          }
+          //minvsBeta_Pt[trig]->Fill(mpt,tofbeta);
+          //if(tofbeta>0){
+           // mtofM2_Pt[trig]->Fill(mpt,tofm2);
+          //}
 
           // For Purity
-          mdedxvsBeta    [trig]->Fill(tofbeta, track->dEdx());
-          mnSigmaEvsBeta [trig]->Fill(tofbeta, nsige);
-          mnSigmaPIvsBeta[trig]->Fill(tofbeta, nsigpi);
-          mnSigmaKvsBeta [trig]->Fill(tofbeta, nsigk);
-          mnSigmaPvsBeta [trig]->Fill(tofbeta, nsigp);
-          mtofm2vsBeta   [trig]->Fill(tofbeta, tofm2);
+          //mdedxvsBeta    [trig]->Fill(tofbeta, track->dEdx());
+          //mnSigmaEvsBeta [trig]->Fill(tofbeta, nsige);
+          //mnSigmaPIvsBeta[trig]->Fill(tofbeta, nsigpi);
+          //mnSigmaKvsBeta [trig]->Fill(tofbeta, nsigk);
+          //mnSigmaPvsBeta [trig]->Fill(tofbeta, nsigp);
+          //mtofm2vsBeta   [trig]->Fill(tofbeta, tofm2);
 
-          mnSigmaPI_Pt_TOF[trig][0]->Fill(mpt,nsigpi);
+          mnSigmaE_Pt_Eta_TOF[trig][0]->Fill(mpt,nsige,meta);
+         /* mnSigmaPI_Pt_TOF[trig][0]->Fill(mpt,nsigpi);
           mnSigmaP_Pt_TOF[trig][0]->Fill(mpt,nsigp);
           mnSigmaE_Pt_TOF[trig][0]->Fill(mpt,nsige);
           mnSigmaK_Pt_TOF[trig][0]->Fill(mpt,nsigk);
-
+         */
           if(trkHFTflag == 1)
           {
-            mnSigmaPI_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigpi);
+            mnSigmaE_Pt_Eta_TOF[trig][trkHFTflag]->Fill(mpt,nsige,meta);
+            /*mnSigmaPI_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigpi);
             mnSigmaP_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigp);
             mnSigmaE_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsige);
             mnSigmaK_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigk);
-          }
-
-          if(kaonEnhCutLow < tofbeta && tofbeta < kaonEnhCutHigh)
-          {
-            mnSigmaE_KEnh_Pt[trig][0]->Fill(mpt,nsige);
-            mnSigmaK_KEnh_Pt[trig][0]->Fill(mpt,nsigk);
-            if(trkHFTflag == 1)
-            {
-              mnSigmaE_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
-              mnSigmaK_KEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
-            }
-          }
-
-          if(pionEnhCutLow < tofbeta && tofbeta < pionEnhCutHigh)
-          {
-            mnSigmaE_PiEnh_Pt [trig][0]->Fill(mpt,nsige);
-            mnSigmaPi_PiEnh_Pt[trig][0]->Fill(mpt,nsigpi);
-            if(trkHFTflag == 1)
-            {
-              mnSigmaE_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
-              mnSigmaPi_PiEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
-            }
-          }
-
-          if(protonEnhCutLow < tofbeta && tofbeta < protonEnhCutHigh)
-          {
-            mnSigmaE_PEnh_Pt[trig][0]->Fill(mpt,nsige);
-            mnSigmaP_PEnh_Pt[trig][0]->Fill(mpt,nsigp);
-            if(trkHFTflag == 1)
-            {
-              mnSigmaE_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsige);
-              mnSigmaP_PEnh_Pt[trig][trkHFTflag]->Fill(mpt,nsigk);
-            }
+            */
           }
 
           Int_t tofcellid=   btofpidtrait->btofCellId();
           Int_t toftray= (int)tofcellid/192 + 1;
           Int_t tofmodule= (int)((tofcellid%192)/6.)+1;
-
           Float_t toflocaly = btofpidtrait->btofYLocal();
           Float_t toflocalz = btofpidtrait->btofZLocal();
           // Float_t tofhitPosx = btofpidtrait->btofHitPos().x();
           // Float_t tofhitPosy = btofpidtrait->btofHitPos().y();
           // Float_t tofhitPosz = btofpidtrait->btofHitPos().z();
-          if(fillhistflag){
-            mtoftray_localY[trig]->Fill(toftray,toflocaly);
-            mtoftray_localZ[trig]->Fill(toftray,toflocalz);
-            mtoftray_matchflag[trig]->Fill(toftray,btofpidtrait->btofMatchFlag());
-            mtoftray_module[trig]->Fill(toftray,tofmodule);
 
-          }//
         }
       }// End TOF
     }//end "isGoodTrack" with eta cut

@@ -1,7 +1,7 @@
 #!/bin/bash
 rm -rf /star/u/zamiller/run14NPE/LocalLibraries_hists.*
-for RUN in `cat List/fullRunList_Bingchu.list`
-#for RUN in `cat List/testListShort.list`
+#for RUN in `cat List/fullRunList_Bingchu.list`
+for RUN in `cat List/testList2.list`
 do
      echo $RUN
      #cd Submit/$day/$RUN

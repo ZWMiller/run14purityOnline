@@ -166,7 +166,7 @@ class StPicoElecPurityMaker : public StMaker {
     TH2F*      mnsigmaK_Pt[4][2];
     TH2F*      mnsigmaE_Pt[4][2]; 
 
-    TH2F*      mnSigmaE_Pt_SMD[4][2];
+  /*  TH2F*      mnSigmaE_Pt_SMD[4][2];
     TH2F*      mnSigmaP_Pt_SMD[4][2];
     TH2F*      mnSigmaK_Pt_SMD[4][2];
     TH2F*      mnSigmaPI_Pt_SMD[4][2];
@@ -185,10 +185,12 @@ class StPicoElecPurityMaker : public StMaker {
     TH2F*      mnSigmaP_Pt_BEMC[4][2];
     TH2F*      mnSigmaK_Pt_BEMC[4][2];
     TH2F*      mnSigmaPI_Pt_BEMC[4][2];
+    */
+    
     //----TPC information end-----
 
     //-----TOF INFORMATION start----
-    TH2F*      minvsBeta_Pt[4];
+    /*TH2F*      minvsBeta_Pt[4];
     TH2F*      mtofM2_Pt[4];
     //        mp vs nsigmaE
     TH2F*      mtoftray_localY[4];
@@ -196,29 +198,30 @@ class StPicoElecPurityMaker : public StMaker {
     //TH3F*      mtofhitPosXYZ[4];
     TH2F*      mtoftray_matchflag[4];
     TH2F*      mtoftray_module[4];
-
+*/
     //----TOF information end----
     
     // For Purity
-    TH2F*      mnSigmaEvsBeta[4];
+  /*  TH2F*      mnSigmaEvsBeta[4];
     TH2F*      mnSigmaPIvsBeta[4];
     TH2F*      mnSigmaKvsBeta[4];
     TH2F*      mnSigmaPvsBeta[4];
     TH2F*      mdedxvsBeta[4];
     TH2F*      mtofm2vsBeta[4];
-	
+	*/
     TH1F*      hNTracks[4];
-    TH2F*      mnSigmaE_KEnh_Pt[4][2];
+    /*TH2F*      mnSigmaE_KEnh_Pt[4][2];
     TH2F*      mnSigmaE_PiEnh_Pt[4][2];
     TH2F*      mnSigmaE_PEnh_Pt[4][2];
     TH2F*      mnSigmaK_KEnh_Pt[4][2];
     TH2F*      mnSigmaPi_PiEnh_Pt[4][2];
     TH2F*      mnSigmaP_PEnh_Pt[4][2];
-
+*/
     // For Eta Dependence Study
-    TH3F*      mnSigmaE_Pt_Eta_SMD[4];
-    TH3F*      mnSigmaE_Pt_Eta_SMD2[4];
-    TH3F*      mnSigmaE_Pt_Eta_BEMC[4];
+    TH3F*      mnSigmaE_Pt_Eta_TOF[4][2];
+    TH3F*      mnSigmaE_Pt_Eta_SMD[4][2];
+    TH3F*      mnSigmaE_Pt_Eta_SMD2[4][2];
+    TH3F*      mnSigmaE_Pt_Eta_BEMC[4][2];
 
     // For dVz cut study
     TH2F* mTPCvsVPD_Vz;
