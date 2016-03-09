@@ -10,6 +10,8 @@
 #include "StRoot/StPicoDstMaker/StPicoBTofPidTraits.h"
 #include "StRoot/StPicoDstMaker/StPicoEmcPidTraits.h"
 #include "StRoot/StPicoDstMaker/StPicoEmcTrigger.h"
+#include "StRoot/StRefMultCorr/StRefMultCorr.h"
+#include "StRoot/StRefMultCorr/CentralityMaker.h"
 #include "StDcaGeometry.h"
 
 #include "StThreeVectorF.hh"
@@ -332,6 +334,20 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
   if(fabs(vztpc)<1.0e-5)  return kStOK;
   //if(fabs(fzvpd) < vZcut) return kStOK;
   //if(fabs(dvz) < dvZcut)  return kStOK;
+
+  //do the refmult correction
+  int mRunId = event->runId();
+  int mZDCx = (int)event->ZDCx();
+  UShort_t mGRefMult = (UShort_t)(event->grefMult());
+  StRefMultCorr* grefmultCorrUtil = CentralityMaker::instance()->getgRefMultCorr() ;
+  grefmultCorrUtil->init(mRunId);
+  grefmultCorrUtil->initEvent(mGRefMult, vzvpd, mZDCx) ;
+
+  const Int_t cent16_grefmult = grefmultCorrUtil->getCentralityBin16() ;
+  const Int_t cent9_grefmult  = grefmultCorrUtil->getCentralityBin9() ;
+  const Double_t reweight = grefmultCorrUtil->getWeight() ;
+  // NOTE: type should be double or float, not integer
+  const Double_t grefmultCor = grefmultCorrUtil->getRefMultCorr() ;
 
   if(fillhistflag){
     mVz_tpc[trig]->Fill(vztpc);
