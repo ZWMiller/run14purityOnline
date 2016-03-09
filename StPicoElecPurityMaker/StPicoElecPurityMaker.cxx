@@ -17,6 +17,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH3F.h"
+#include "THnSparse.h"
 #include "TFile.h"
 #include <map>
 #include<iostream>
@@ -220,7 +221,20 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mnSigmaPi_PiEnh_Pt[tr][1] = new TH2F(Form("nSigmaPi_PiEnh_Pt_HFT_%i",tr),"nSigmaPi vs pT with HFT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
    */
     //--------------------Eta Dependence Study----------------
-    mnSigmaE_Pt_Eta_SMD[tr][0]  = new TH3F(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+    int ndims = 3;
+    int nbins[3] = {400,200,40};
+    double xmin[3] = {0,-nSigLim,-1};
+    double xmax[3] = {20,nSigLim,1};
+    mnSigmaE_Pt_Eta_SMD[tr][0]  = new THnSparseF(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
+    mnSigmaE_Pt_Eta_SMD2[tr][0] = new THnSparseF(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
+    mnSigmaE_Pt_Eta_BEMC[tr][0] = new THnSparseF(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
+    mnSigmaE_Pt_Eta_TOF[tr][0]  = new THnSparseF(Form("nSigmaE_Pt_Eta_TOF_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
+    mnSigmaE_Pt_Eta_TOF[tr][1]  = new THnSparseF(Form("nSigmaE_Pt_Eta_TOF_HFT_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
+    mnSigmaE_Pt_Eta_SMD[tr][1]  = new THnSparseF(Form("nSigmaE_Pt_Eta_SMD_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
+    mnSigmaE_Pt_Eta_SMD2[tr][1] = new THnSparseF(Form("nSigmaE_Pt_Eta_SMD2_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
+    mnSigmaE_Pt_Eta_BEMC[tr][1] = new THnSparseF(Form("nSigmaE_Pt_Eta_BEMC_HFT_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
+
+    /*mnSigmaE_Pt_Eta_SMD[tr][0]  = new TH3F(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
     mnSigmaE_Pt_Eta_SMD2[tr][0] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
     mnSigmaE_Pt_Eta_BEMC[tr][0] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
     mnSigmaE_Pt_Eta_TOF[tr][0]  = new TH3F(Form("nSigmaE_Pt_Eta_TOF_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
@@ -228,6 +242,7 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mnSigmaE_Pt_Eta_SMD[tr][1]  = new TH3F(Form("nSigmaE_Pt_Eta_SMD_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
     mnSigmaE_Pt_Eta_SMD2[tr][1] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
     mnSigmaE_Pt_Eta_BEMC[tr][1] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_HFT_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+  */
   }
   // -------- dVz Study -------
   mTPCvsVPD_Vz = new TH2F("TPCvsVPD_Vz","TPC vs VPD Vz (no dVz Cut)",400,-200,200,400,-200,200);
@@ -464,10 +479,14 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
 
       mdedx_Pt[trig]->Fill(mpt*mcharge,track->dEdx());
 
+      double sparseFill[3] = {mpt, nsige, meta};
+      
       // BEMC nSig
       if(passBEMCCuts(event, track, trig))
       {
-        mnSigmaE_Pt_Eta_BEMC[trig][0]->Fill(mpt,nsige,meta);
+        mnSigmaE_Pt_Eta_BEMC[trig][0]->Fill(sparseFill);
+        //mnSigmaE_Pt_Eta_BEMC[trig][0]->Fill(mpt,nsige,meta);
+       
         /*mnSigmaPI_Pt_BEMC[trig][0]->Fill(mpt,nsigpi);
         mnSigmaP_Pt_BEMC[trig][0]->Fill(mpt,nsigp);
         mnSigmaE_Pt_BEMC[trig][0]->Fill(mpt,nsige);
@@ -475,19 +494,22 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
         */
         if(trkHFTflag == 1)
         {
-          mnSigmaE_Pt_Eta_BEMC[trig][trkHFTflag]->Fill(mpt,nsige,meta);
+          mnSigmaE_Pt_Eta_BEMC[trig][trkHFTflag]->Fill(sparseFill);
+
+         // mnSigmaE_Pt_Eta_BEMC[trig][trkHFTflag]->Fill(mpt,nsige,meta);
           /*mnSigmaPI_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigpi);
           mnSigmaP_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigp);
           mnSigmaE_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsige);
           mnSigmaK_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigk);
           */
-        }
+        } 
 
         // SMD and BEMC
         int checkSMD = passSMDCuts(event, track, trig);
         if(checkSMD > 0 )// if passes either: 1 = loose cuts or 2 = tight cuts
         {
-          mnSigmaE_Pt_Eta_SMD[trig][0]->Fill(mpt,nsige,meta);
+          mnSigmaE_Pt_Eta_SMD[trig][0]->Fill(sparseFill);
+          //mnSigmaE_Pt_Eta_SMD[trig][0]->Fill(mpt,nsige,meta);
           /*mnSigmaPI_Pt_SMD[trig][0]->Fill(mpt,nsigpi);
           mnSigmaP_Pt_SMD[trig][0]->Fill(mpt,nsigp);
           mnSigmaE_Pt_SMD[trig][0]->Fill(mpt,nsige);
@@ -495,7 +517,8 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           */
           if(trkHFTflag == 1)
           {
-            mnSigmaE_Pt_Eta_SMD[trig][trkHFTflag]->Fill(mpt,nsige,meta);
+            mnSigmaE_Pt_Eta_SMD[trig][trkHFTflag]->Fill(sparseFill);
+            //mnSigmaE_Pt_Eta_SMD[trig][trkHFTflag]->Fill(mpt,nsige,meta);
             /*mnSigmaPI_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigpi);
             mnSigmaP_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigp);
             mnSigmaE_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsige);
@@ -506,7 +529,8 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
         // Tighter SMD Cuts
         if( checkSMD == 2) // 2 = tight cuts
         {
-          mnSigmaE_Pt_Eta_SMD2[trig][0]->Fill(mpt,nsige,meta);
+          mnSigmaE_Pt_Eta_SMD2[trig][0]->Fill(sparseFill);
+          //mnSigmaE_Pt_Eta_SMD2[trig][0]->Fill(mpt,nsige,meta);
           /*mnSigmaPI_Pt_SMD2[trig][0]->Fill(mpt,nsigpi);
           mnSigmaP_Pt_SMD2[trig][0]->Fill(mpt,nsigp);
           mnSigmaE_Pt_SMD2[trig][0]->Fill(mpt,nsige);
@@ -514,7 +538,8 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           */
           if(trkHFTflag == 1)
           {
-            mnSigmaE_Pt_Eta_SMD2[trig][trkHFTflag]->Fill(mpt,nsige,meta);
+            mnSigmaE_Pt_Eta_SMD2[trig][trkHFTflag]->Fill(sparseFill);
+            //mnSigmaE_Pt_Eta_SMD2[trig][trkHFTflag]->Fill(mpt,nsige,meta);
             /*mnSigmaPI_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigpi);
             mnSigmaP_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigp);
             mnSigmaE_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsige);
@@ -555,7 +580,8 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           //mnSigmaPvsBeta [trig]->Fill(tofbeta, nsigp);
           //mtofm2vsBeta   [trig]->Fill(tofbeta, tofm2);
 
-          mnSigmaE_Pt_Eta_TOF[trig][0]->Fill(mpt,nsige,meta);
+          mnSigmaE_Pt_Eta_TOF[trig][0]->Fill(sparseFill);
+          //mnSigmaE_Pt_Eta_TOF[trig][0]->Fill(mpt,nsige,meta);
          /* mnSigmaPI_Pt_TOF[trig][0]->Fill(mpt,nsigpi);
           mnSigmaP_Pt_TOF[trig][0]->Fill(mpt,nsigp);
           mnSigmaE_Pt_TOF[trig][0]->Fill(mpt,nsige);
@@ -563,7 +589,8 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
          */
           if(trkHFTflag == 1)
           {
-            mnSigmaE_Pt_Eta_TOF[trig][trkHFTflag]->Fill(mpt,nsige,meta);
+            mnSigmaE_Pt_Eta_TOF[trig][trkHFTflag]->Fill(sparseFill);
+            //mnSigmaE_Pt_Eta_TOF[trig][trkHFTflag]->Fill(mpt,nsige,meta);
             /*mnSigmaPI_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigpi);
             mnSigmaP_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigp);
             mnSigmaE_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsige);

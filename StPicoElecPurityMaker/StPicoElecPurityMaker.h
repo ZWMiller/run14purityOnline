@@ -11,6 +11,7 @@ class TString;
 class TH1F;
 class TH2F;
 class TH3F;
+class THnSparse;
 class TFile;
 class StPicoElecPurityMaker : public StMaker {
  public:
@@ -218,10 +219,10 @@ class StPicoElecPurityMaker : public StMaker {
     TH2F*      mnSigmaP_PEnh_Pt[4][2];
 */
     // For Eta Dependence Study
-    TH3F*      mnSigmaE_Pt_Eta_TOF[4][2];
-    TH3F*      mnSigmaE_Pt_Eta_SMD[4][2];
-    TH3F*      mnSigmaE_Pt_Eta_SMD2[4][2];
-    TH3F*      mnSigmaE_Pt_Eta_BEMC[4][2];
+    THnSparse*      mnSigmaE_Pt_Eta_TOF[4][2];
+    THnSparse*      mnSigmaE_Pt_Eta_SMD[4][2];
+    THnSparse*      mnSigmaE_Pt_Eta_SMD2[4][2];
+    THnSparse*      mnSigmaE_Pt_Eta_BEMC[4][2];
 
     // For dVz cut study
     TH2F* mTPCvsVPD_Vz;
