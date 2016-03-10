@@ -224,6 +224,12 @@ class StPicoElecPurityMaker : public StMaker {
     THnSparse*      mnSigmaE_Pt_Eta_SMD2[4][2];
     THnSparse*      mnSigmaE_Pt_Eta_BEMC[4][2];
 
+    // For Centrality Study
+    TH1F* gRefMultCor[4];
+    TH1F* gRefMultCorWg[4];
+    TH1F* centrality16[4];
+
+
     // For dVz cut study
     TH2F* mTPCvsVPD_Vz;
     TH2F* mTPCvsDVz;

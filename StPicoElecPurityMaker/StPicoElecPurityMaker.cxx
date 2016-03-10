@@ -112,6 +112,17 @@ Int_t StPicoElecPurityMaker::Init() {
 //----------------------------------------------------------------------------- 
 Int_t StPicoElecPurityMaker::Finish() {
   fout->cd();
+  for(int t=0; t<4; t++)
+  {
+    mnSigmaE_Pt_Eta_SMD[t][0]->Write();
+    mnSigmaE_Pt_Eta_SMD[t][1]->Write();
+    mnSigmaE_Pt_Eta_SMD2[t][0]->Write();
+    mnSigmaE_Pt_Eta_SMD2[t][1]->Write();
+    mnSigmaE_Pt_Eta_BEMC[t][0]->Write();
+    mnSigmaE_Pt_Eta_BEMC[t][1]->Write();
+    mnSigmaE_Pt_Eta_SMD[t][0]->Write();
+    mnSigmaE_Pt_Eta_SMD[t][1]->Write();
+  }
   fout->Write();
   fout->Close();
   return kStOK;
@@ -150,39 +161,39 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mtrkphi[tr] = new TH1F(Form("trkphi_%i",tr),"the phi distribution of all tracks",200,0,6.3);
 
     /*
-    mnSigmaPI_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaPI_Pt_BEMC_%i",tr),"nSigmapion vs Pt of all tracks using BEMC; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaP_Pt_BEMC_%i",tr),"nSigmaproton vs Pt of all tracks using BEMC; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaK_Pt_BEMC_%i",tr),"nSigmaK vs Pt of all tracks using BEMC; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaE_Pt_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaPI_Pt_BEMC[tr][1] = new TH2F(Form("nSigmaPI_Pt_BEMC_HFT_%i",tr),"nSigmapion vs Pt of HFT tracks; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_Pt_BEMC[tr][1] = new TH2F(Form("nSigmaP_Pt_BEMC_HFT_%i",tr),"nSigmaproton vs Pt of HFT tracks; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_Pt_BEMC[tr][1] = new TH2F(Form("nSigmaK_Pt_BEMC_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_Pt_BEMC[tr][1] = new TH2F(Form("nSigmaE_Pt_BEMC_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaPI_Pt_SMD[tr][0] = new TH2F(Form("nSigmaPI_Pt_SMD_%i",tr),"nSigmaPI vs Pt of all tracks using SMD; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_Pt_SMD[tr][0] = new TH2F(Form("nSigmaP_Pt_SMD_%i",tr),"nSigmaP vs Pt of all tracks using SMD; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_Pt_SMD[tr][0] = new TH2F(Form("nSigmaK_Pt_SMD_%i",tr),"nSigmaK vs Pt of all tracks using SMD; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_Pt_SMD[tr][0] = new TH2F(Form("nSigmaE_Pt_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaPI_Pt_SMD[tr][1] = new TH2F(Form("nSigmaPI_Pt_SMD_HFT_%i",tr),"nSigmaPI vs Pt of HFT tracks using SMD; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_Pt_SMD[tr][1] = new TH2F(Form("nSigmaP_Pt_SMD_HFT_%i",tr),"nSigmaP vs Pt of HFT tracks using SMD; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_Pt_SMD[tr][1] = new TH2F(Form("nSigmaK_Pt_SMD_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks using SMD; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_Pt_SMD[tr][1] = new TH2F(Form("nSigmaE_Pt_SMD_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaPI_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaPI_Pt_SMD2_%i",tr),"nSigmaPI vs Pt of all tracks using SMD2; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaP_Pt_SMD2_%i",tr),"nSigmaP vs Pt of all tracks using SMD2; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaK_Pt_SMD2_%i",tr),"nSigmaK vs Pt of all tracks using SMD2; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaE_Pt_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaPI_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaPI_Pt_SMD2_HFT_%i",tr),"nSigmaPI vs Pt of HFT tracks using SMD2; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaP_Pt_SMD2_HFT_%i",tr),"nSigmaP vs Pt of HFT tracks using SMD2; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaK_Pt_SMD2_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks using SMD2; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaE_Pt_SMD2_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaPI_Pt_TOF[tr][0] = new TH2F(Form("nSigmaPI_Pt_TOF_%i",tr),"nSigmaPI vs Pt of all tracks using TOF; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_Pt_TOF[tr][0] = new TH2F(Form("nSigmaP_Pt_TOF_%i",tr),"nSigmaP vs Pt of all tracks using TOF; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_Pt_TOF[tr][0] = new TH2F(Form("nSigmaK_Pt_TOF_%i",tr),"nSigmaK vs Pt of all tracks using TOF; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_Pt_TOF[tr][0] = new TH2F(Form("nSigmaE_Pt_TOF_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaPI_Pt_TOF[tr][1] = new TH2F(Form("nSigmaPI_Pt_TOF_HFT_%i",tr),"nSigmaPI vs Pt of HFT tracks using TOF; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_Pt_TOF[tr][1] = new TH2F(Form("nSigmaP_Pt_TOF_HFT_%i",tr),"nSigmaP vs Pt of HFT tracks using TOF; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_Pt_TOF[tr][1] = new TH2F(Form("nSigmaK_Pt_TOF_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks using TOF; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_Pt_TOF[tr][1] = new TH2F(Form("nSigmaE_Pt_TOF_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
-    */
+       mnSigmaPI_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaPI_Pt_BEMC_%i",tr),"nSigmapion vs Pt of all tracks using BEMC; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaP_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaP_Pt_BEMC_%i",tr),"nSigmaproton vs Pt of all tracks using BEMC; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaK_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaK_Pt_BEMC_%i",tr),"nSigmaK vs Pt of all tracks using BEMC; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaE_Pt_BEMC[tr][0] = new TH2F(Form("nSigmaE_Pt_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaPI_Pt_BEMC[tr][1] = new TH2F(Form("nSigmaPI_Pt_BEMC_HFT_%i",tr),"nSigmapion vs Pt of HFT tracks; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaP_Pt_BEMC[tr][1] = new TH2F(Form("nSigmaP_Pt_BEMC_HFT_%i",tr),"nSigmaproton vs Pt of HFT tracks; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaK_Pt_BEMC[tr][1] = new TH2F(Form("nSigmaK_Pt_BEMC_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaE_Pt_BEMC[tr][1] = new TH2F(Form("nSigmaE_Pt_BEMC_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaPI_Pt_SMD[tr][0] = new TH2F(Form("nSigmaPI_Pt_SMD_%i",tr),"nSigmaPI vs Pt of all tracks using SMD; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaP_Pt_SMD[tr][0] = new TH2F(Form("nSigmaP_Pt_SMD_%i",tr),"nSigmaP vs Pt of all tracks using SMD; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaK_Pt_SMD[tr][0] = new TH2F(Form("nSigmaK_Pt_SMD_%i",tr),"nSigmaK vs Pt of all tracks using SMD; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaE_Pt_SMD[tr][0] = new TH2F(Form("nSigmaE_Pt_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaPI_Pt_SMD[tr][1] = new TH2F(Form("nSigmaPI_Pt_SMD_HFT_%i",tr),"nSigmaPI vs Pt of HFT tracks using SMD; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaP_Pt_SMD[tr][1] = new TH2F(Form("nSigmaP_Pt_SMD_HFT_%i",tr),"nSigmaP vs Pt of HFT tracks using SMD; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaK_Pt_SMD[tr][1] = new TH2F(Form("nSigmaK_Pt_SMD_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks using SMD; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaE_Pt_SMD[tr][1] = new TH2F(Form("nSigmaE_Pt_SMD_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaPI_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaPI_Pt_SMD2_%i",tr),"nSigmaPI vs Pt of all tracks using SMD2; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaP_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaP_Pt_SMD2_%i",tr),"nSigmaP vs Pt of all tracks using SMD2; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaK_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaK_Pt_SMD2_%i",tr),"nSigmaK vs Pt of all tracks using SMD2; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaE_Pt_SMD2[tr][0] = new TH2F(Form("nSigmaE_Pt_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaPI_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaPI_Pt_SMD2_HFT_%i",tr),"nSigmaPI vs Pt of HFT tracks using SMD2; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaP_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaP_Pt_SMD2_HFT_%i",tr),"nSigmaP vs Pt of HFT tracks using SMD2; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaK_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaK_Pt_SMD2_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks using SMD2; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaE_Pt_SMD2[tr][1] = new TH2F(Form("nSigmaE_Pt_SMD2_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaPI_Pt_TOF[tr][0] = new TH2F(Form("nSigmaPI_Pt_TOF_%i",tr),"nSigmaPI vs Pt of all tracks using TOF; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaP_Pt_TOF[tr][0] = new TH2F(Form("nSigmaP_Pt_TOF_%i",tr),"nSigmaP vs Pt of all tracks using TOF; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaK_Pt_TOF[tr][0] = new TH2F(Form("nSigmaK_Pt_TOF_%i",tr),"nSigmaK vs Pt of all tracks using TOF; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaE_Pt_TOF[tr][0] = new TH2F(Form("nSigmaE_Pt_TOF_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaPI_Pt_TOF[tr][1] = new TH2F(Form("nSigmaPI_Pt_TOF_HFT_%i",tr),"nSigmaPI vs Pt of HFT tracks using TOF; Pt; nSigmaPI;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaP_Pt_TOF[tr][1] = new TH2F(Form("nSigmaP_Pt_TOF_HFT_%i",tr),"nSigmaP vs Pt of HFT tracks using TOF; Pt; nSigmaP;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaK_Pt_TOF[tr][1] = new TH2F(Form("nSigmaK_Pt_TOF_HFT_%i",tr),"nSigmaK vs Pt of HFT tracks using TOF; Pt; nSigmaK;",400,0,20,200,-nSigLim,nSigLim);
+       mnSigmaE_Pt_TOF[tr][1] = new TH2F(Form("nSigmaE_Pt_TOF_HFT_%i",tr),"nSigmaE vs Pt of HFT tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim);
+       */
 
     mnsigmaPI[tr] = new TH1F(Form("nsigmaPI_%i",tr),"nsigmapion of all tracks",200,-nSigLim,nSigLim);
     mnsigmaK[tr] = new TH1F(Form("nsigmaK_%i",tr),"nsigmaKaon of all tracks",200,-nSigLim,nSigLim);
@@ -195,12 +206,12 @@ void StPicoElecPurityMaker::DeclareHistograms() {
 
     //mnSigmaEvsBeta[tr] = new TH2F(Form("nSigmaEvsBeta_%i",tr),"nSigmaE vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
     /*mdedxvsBeta[tr] = new TH2F(Form("ndedxvsBeta_%i",tr),"de/dX vs 1/Beta; ",400,betaLow,betaHigh,250,0,10);
-    mnSigmaPIvsBeta[tr] = new TH2F(Form("nSigmaPIvsBeta_%i",tr),"nSigmaPI vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
-    mnSigmaKvsBeta[tr] = new TH2F(Form("nSigmaKvsBeta_%i",tr),"nSigmaK vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
-    mnSigmaPvsBeta[tr] = new TH2F(Form("nSigmaPvsBeta_%i",tr),"nSigmaP vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
-    mtofm2vsBeta[tr] = new TH2F(Form("ntofm2vsBeta_%i",tr),"tofM2 vs 1/Beta; ",400,betaLow,betaHigh,200,-0.5,4.5);
-    mtoftray_localY[tr] = new TH2F(Form("toftray_localY_%i",tr),"localY VS toftray; tray; localY;",120,0,120,100,-4,4);
-    mtoftray_localZ[tr] = new TH2F(Form("toftray_localZ_%i",tr),"localZ VS toftray; tray; localZ;",120,0,120,100,-4,4);
+      mnSigmaPIvsBeta[tr] = new TH2F(Form("nSigmaPIvsBeta_%i",tr),"nSigmaPI vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
+      mnSigmaKvsBeta[tr] = new TH2F(Form("nSigmaKvsBeta_%i",tr),"nSigmaK vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
+      mnSigmaPvsBeta[tr] = new TH2F(Form("nSigmaPvsBeta_%i",tr),"nSigmaP vs 1/Beta; ",400,betaLow,betaHigh,50,-15,15);
+      mtofm2vsBeta[tr] = new TH2F(Form("ntofm2vsBeta_%i",tr),"tofM2 vs 1/Beta; ",400,betaLow,betaHigh,200,-0.5,4.5);
+      mtoftray_localY[tr] = new TH2F(Form("toftray_localY_%i",tr),"localY VS toftray; tray; localY;",120,0,120,100,-4,4);
+      mtoftray_localZ[tr] = new TH2F(Form("toftray_localZ_%i",tr),"localZ VS toftray; tray; localZ;",120,0,120,100,-4,4);
     //mtofhitPosXYZ[tr] = new TH3F(Form("tofhitPosXYZ_%i",tr),"tofhitPosXYZ",400,-200,200,400,-200,200,400,-200,200);
     mtoftray_matchflag[tr] = new TH2F(Form("toftray_matchflag_%i",tr),"toftray_matchflag;tofTray; tofmatchflag;",120,0,120,4,0,4);
     mtoftray_module[tr] = new TH2F(Form("toftray_module_%i",tr),"toftray_module;tofTray; module",120,0,120,40,0,40);
@@ -210,23 +221,23 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     hNTracks[tr] = new TH1F(Form("hNTracks_%i",tr),"Number of Tracks before (0) and after cuts (2);",10,0,10);
 
     /*mnSigmaE_KEnh_Pt[tr][0] = new TH2F(Form("nSigmaE_KEnh_Pt_%i",tr),"nSigmaE vs pT;pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_PEnh_Pt[tr][0] = new TH2F(Form("nSigmaE_PEnh_Pt_%i",tr),"nSigmaE vs pT;pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_PiEnh_Pt[tr][0] = new TH2F(Form("nSigmaE_PiEnh_Pt_%i",tr),"nSigmaE vs pT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_KEnh_Pt[tr][1] = new TH2F(Form("nSigmaE_KEnh_Pt_HFT_%i",tr),"nSigmaE vs pT with HFT;pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_PEnh_Pt[tr][1] = new TH2F(Form("nSigmaE_PEnh_Pt_HFT)%i",tr),"nSigmaE vs pT with HFT;pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaE_PiEnh_Pt[tr][1] = new TH2F(Form("nSigmaE_PiEnh_Pt_HFT_%i",tr),"nSigmaE vs pT with HFT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_KEnh_Pt[tr][0] = new TH2F(Form("nSigmaK_KEnh_Pt_%i",tr),"nSigmaK vs pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_PEnh_Pt[tr][0] = new TH2F(Form("nSigmaP_PEnh_Pt_%i",tr),"nSigmaP vs pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaPi_PiEnh_Pt[tr][0] = new TH2F(Form("nSigmaPi_PiEnh_Pt_%i",tr),"nSigmaPi vs pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaK_KEnh_Pt[tr][1] = new TH2F(Form("nSigmaK_KEnh_Pt_HFT_%i",tr),"nSigmaK vs pT with HFT;pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaP_PEnh_Pt[tr][1] = new TH2F(Form("nSigmaP_PEnh_Pt_HFT_%i",tr),"nSigmaP vs pT with HFT;pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-    mnSigmaPi_PiEnh_Pt[tr][1] = new TH2F(Form("nSigmaPi_PiEnh_Pt_HFT_%i",tr),"nSigmaPi vs pT with HFT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
-   */
+      mnSigmaE_PEnh_Pt[tr][0] = new TH2F(Form("nSigmaE_PEnh_Pt_%i",tr),"nSigmaE vs pT;pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaE_PiEnh_Pt[tr][0] = new TH2F(Form("nSigmaE_PiEnh_Pt_%i",tr),"nSigmaE vs pT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaE_KEnh_Pt[tr][1] = new TH2F(Form("nSigmaE_KEnh_Pt_HFT_%i",tr),"nSigmaE vs pT with HFT;pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaE_PEnh_Pt[tr][1] = new TH2F(Form("nSigmaE_PEnh_Pt_HFT)%i",tr),"nSigmaE vs pT with HFT;pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaE_PiEnh_Pt[tr][1] = new TH2F(Form("nSigmaE_PiEnh_Pt_HFT_%i",tr),"nSigmaE vs pT with HFT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaK_KEnh_Pt[tr][0] = new TH2F(Form("nSigmaK_KEnh_Pt_%i",tr),"nSigmaK vs pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaP_PEnh_Pt[tr][0] = new TH2F(Form("nSigmaP_PEnh_Pt_%i",tr),"nSigmaP vs pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaPi_PiEnh_Pt[tr][0] = new TH2F(Form("nSigmaPi_PiEnh_Pt_%i",tr),"nSigmaPi vs pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaK_KEnh_Pt[tr][1] = new TH2F(Form("nSigmaK_KEnh_Pt_HFT_%i",tr),"nSigmaK vs pT with HFT;pT; Kaon Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaP_PEnh_Pt[tr][1] = new TH2F(Form("nSigmaP_PEnh_Pt_HFT_%i",tr),"nSigmaP vs pT with HFT;pT; Proton Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      mnSigmaPi_PiEnh_Pt[tr][1] = new TH2F(Form("nSigmaPi_PiEnh_Pt_HFT_%i",tr),"nSigmaPi vs pT with HFT;pT; Pion Enhanced;",400,0,20,200,-nSigLim,nSigLim);
+      */
     //--------------------Eta Dependence Study----------------
-    int ndims = 3;
-    int nbins[3] = {400,200,40};
-    double xmin[3] = {0,-nSigLim,-1};
-    double xmax[3] = {20,nSigLim,1};
+    int ndims = 5; //pT, nSigmaE, Eta, Centrality, Vz
+    int nbins[5] = {400,200,40,20,400};
+    double xmin[3] = {0,-nSigLim,-1,0,-100};
+    double xmax[3] = {20,nSigLim,1,20,100};
     mnSigmaE_Pt_Eta_SMD[tr][0]  = new THnSparseF(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
     mnSigmaE_Pt_Eta_SMD2[tr][0] = new THnSparseF(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
     mnSigmaE_Pt_Eta_BEMC[tr][0] = new THnSparseF(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
@@ -236,16 +247,23 @@ void StPicoElecPurityMaker::DeclareHistograms() {
     mnSigmaE_Pt_Eta_SMD2[tr][1] = new THnSparseF(Form("nSigmaE_Pt_Eta_SMD2_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
     mnSigmaE_Pt_Eta_BEMC[tr][1] = new THnSparseF(Form("nSigmaE_Pt_Eta_BEMC_HFT_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",ndims,nbins,xmin,xmax);
 
-    /*mnSigmaE_Pt_Eta_SMD[tr][0]  = new TH3F(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
-    mnSigmaE_Pt_Eta_SMD2[tr][0] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
-    mnSigmaE_Pt_Eta_BEMC[tr][0] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
-    mnSigmaE_Pt_Eta_TOF[tr][0]  = new TH3F(Form("nSigmaE_Pt_Eta_TOF_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
-    mnSigmaE_Pt_Eta_TOF[tr][1]  = new TH3F(Form("nSigmaE_Pt_Eta_TOF_HFT_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
-    mnSigmaE_Pt_Eta_SMD[tr][1]  = new TH3F(Form("nSigmaE_Pt_Eta_SMD_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
-    mnSigmaE_Pt_Eta_SMD2[tr][1] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
-    mnSigmaE_Pt_Eta_BEMC[tr][1] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_HFT_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
-  */
+    // mnSigmaE_Pt_Eta_SMD[tr][0]  = new TH3F(Form("nSigmaE_Pt_Eta_SMD_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+    /*mnSigmaE_Pt_Eta_SMD2[tr][0] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+      mnSigmaE_Pt_Eta_BEMC[tr][0] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+      mnSigmaE_Pt_Eta_TOF[tr][0]  = new TH3F(Form("nSigmaE_Pt_Eta_TOF_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+      mnSigmaE_Pt_Eta_TOF[tr][1]  = new TH3F(Form("nSigmaE_Pt_Eta_TOF_HFT_%i",tr),"nSigmaE vs Pt of all tracks using TOF; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+      mnSigmaE_Pt_Eta_SMD[tr][1]  = new TH3F(Form("nSigmaE_Pt_Eta_SMD_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+      mnSigmaE_Pt_Eta_SMD2[tr][1] = new TH3F(Form("nSigmaE_Pt_Eta_SMD2_HFT_%i",tr),"nSigmaE vs Pt of all tracks using SMD2; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+      mnSigmaE_Pt_Eta_BEMC[tr][1] = new TH3F(Form("nSigmaE_Pt_Eta_BEMC_HFT_%i",tr),"nSigmaE vs Pt of all tracks using BEMC; Pt; nSigmaE;",400,0,20,200,-nSigLim,nSigLim,80,-2,2);
+      */
+
+
+    // -------- For Centrality Study --------
+    gRefMultCor[tr] = new TH1F(Form("gRefMultCor_%i",tr),"gRefMult; gRefMult; Counts",100,0,1000);
+    gRefMultCorWg[tr] = new TH1F(Form("gRefMultCorWg_%i",tr),"gRefMult Corrected; gRefMult; Counts",100,0,1000);
+    centrality16[tr] = new TH1F(Form("centrality16_%i",tr),"Centrality; Centrality; Counts",20,0,20);
   }
+
   // -------- dVz Study -------
   mTPCvsVPD_Vz = new TH2F("TPCvsVPD_Vz","TPC vs VPD Vz (no dVz Cut)",400,-200,200,400,-200,200);
   mTPCvsDVz = new TH2F("TPCvsDVz","TPC vs DVz (no dVz Cut)",400,-200,200,400,-200,200);
@@ -350,6 +368,9 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
   const Double_t grefmultCor = grefmultCorrUtil->getRefMultCorr() ;
 
   if(fillhistflag){
+    centrality16[trig]->Fill(cent16_grefmult);
+    gRefMultCor[trig]->Fill(grefmultCor);
+    gRefMultCorWg[trig]->Fill(grefmultCor,reweight);
     mVz_tpc[trig]->Fill(vztpc);
     mVz_vpd[trig]->Fill(vzvpd);
     mdVz[trig]->Fill(dvz);  
@@ -413,42 +434,42 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
     if(!isGoodTrack && !isGoodTrack_NoEta) continue;
 
     /*if(isGoodTrack_NoEta)
-    {
+      {
 
       hNTracks[trig]->Fill(10);
 
       Double_t meta,mpt,mphi,mcharge,mdedx;
       Double_t nsige=track->nSigmaElectron();
-      
-      //change to global track
-      meta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
-      if(track->pMom().mag()!=0) Nprimarytracks++;
-      mphi=RotatePhi(track->gMom(event->primaryVertex(),event->bField()).phi());
-      mpt=track->gMom(event->primaryVertex(),event->bField()).perp();
-      mcharge=track->charge();
-      mdedx=track->dEdx();
 
-      if(mcharge==0||meta==0||mphi==0||mdedx==0/*||track->pMom().mag()!=0*//*) continue; //remove neutral, untracked, or primary tracks
-      hNTracks[trig]->Fill(12);
+    //change to global track
+    meta=track->gMom(event->primaryVertex(),event->bField()).pseudoRapidity();
+    if(track->pMom().mag()!=0) Nprimarytracks++;
+    mphi=RotatePhi(track->gMom(event->primaryVertex(),event->bField()).phi());
+    mpt=track->gMom(event->primaryVertex(),event->bField()).perp();
+    mcharge=track->charge();
+    mdedx=track->dEdx();
 
-      // BEMC nSig
-      if(passBEMCCuts(event, track, trig))
-      {
-        if(DEBUG)std::cout << "Zach Out: At first 3D" << endl;
-        mnSigmaE_Pt_Eta_BEMC[trig]->Fill(mpt,nsige,meta);
+    if(mcharge==0||meta==0||mphi==0||mdedx==0/*||track->pMom().mag()!=0*//*) continue; //remove neutral, untracked, or primary tracks
+                                                                           hNTracks[trig]->Fill(12);
 
-        // SMD and BEMC
-        int checkSMD = passSMDCuts(event, track, trig);
-        if(checkSMD > 0 )// if passes either: 1 = loose cuts or 2 = tight cuts
-        {
-          mnSigmaE_Pt_Eta_SMD[trig]->Fill(mpt,nsige,meta);
-        }
-        // Tighter SMD Cuts
-        if( checkSMD == 2) // 2 = tight cuts
-        {
-          mnSigmaE_Pt_Eta_SMD2[trig]->Fill(mpt,nsige,meta);
-        }
-      }
+    // BEMC nSig
+    if(passBEMCCuts(event, track, trig))
+    {
+    if(DEBUG)std::cout << "Zach Out: At first 3D" << endl;
+    mnSigmaE_Pt_Eta_BEMC[trig]->Fill(mpt,nsige,meta);
+
+    // SMD and BEMC
+    int checkSMD = passSMDCuts(event, track, trig);
+    if(checkSMD > 0 )// if passes either: 1 = loose cuts or 2 = tight cuts
+    {
+    mnSigmaE_Pt_Eta_SMD[trig]->Fill(mpt,nsige,meta);
+    }
+    // Tighter SMD Cuts
+    if( checkSMD == 2) // 2 = tight cuts
+    {
+    mnSigmaE_Pt_Eta_SMD2[trig]->Fill(mpt,nsige,meta);
+    }
+    }
     }*/
 
     if(isGoodTrack_NoEta){ 
@@ -496,28 +517,28 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
       mdedx_Pt[trig]->Fill(mpt*mcharge,track->dEdx());
 
       double sparseFill[3] = {mpt, nsige, meta};
-      
+
       // BEMC nSig
       if(passBEMCCuts(event, track, trig))
       {
         mnSigmaE_Pt_Eta_BEMC[trig][0]->Fill(sparseFill);
         //mnSigmaE_Pt_Eta_BEMC[trig][0]->Fill(mpt,nsige,meta);
-       
+
         /*mnSigmaPI_Pt_BEMC[trig][0]->Fill(mpt,nsigpi);
-        mnSigmaP_Pt_BEMC[trig][0]->Fill(mpt,nsigp);
-        mnSigmaE_Pt_BEMC[trig][0]->Fill(mpt,nsige);
-        mnSigmaK_Pt_BEMC[trig][0]->Fill(mpt,nsigk);
-        */
+          mnSigmaP_Pt_BEMC[trig][0]->Fill(mpt,nsigp);
+          mnSigmaE_Pt_BEMC[trig][0]->Fill(mpt,nsige);
+          mnSigmaK_Pt_BEMC[trig][0]->Fill(mpt,nsigk);
+          */
         if(trkHFTflag == 1)
         {
           mnSigmaE_Pt_Eta_BEMC[trig][trkHFTflag]->Fill(sparseFill);
 
-         // mnSigmaE_Pt_Eta_BEMC[trig][trkHFTflag]->Fill(mpt,nsige,meta);
+          // mnSigmaE_Pt_Eta_BEMC[trig][trkHFTflag]->Fill(mpt,nsige,meta);
           /*mnSigmaPI_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigpi);
-          mnSigmaP_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigp);
-          mnSigmaE_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsige);
-          mnSigmaK_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigk);
-          */
+            mnSigmaP_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigp);
+            mnSigmaE_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsige);
+            mnSigmaK_Pt_BEMC[trig][trkHFTflag]->Fill(mpt,nsigk);
+            */
         } 
 
         // SMD and BEMC
@@ -527,19 +548,19 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           mnSigmaE_Pt_Eta_SMD[trig][0]->Fill(sparseFill);
           //mnSigmaE_Pt_Eta_SMD[trig][0]->Fill(mpt,nsige,meta);
           /*mnSigmaPI_Pt_SMD[trig][0]->Fill(mpt,nsigpi);
-          mnSigmaP_Pt_SMD[trig][0]->Fill(mpt,nsigp);
-          mnSigmaE_Pt_SMD[trig][0]->Fill(mpt,nsige);
-          mnSigmaK_Pt_SMD[trig][0]->Fill(mpt,nsigk);
-          */
+            mnSigmaP_Pt_SMD[trig][0]->Fill(mpt,nsigp);
+            mnSigmaE_Pt_SMD[trig][0]->Fill(mpt,nsige);
+            mnSigmaK_Pt_SMD[trig][0]->Fill(mpt,nsigk);
+            */
           if(trkHFTflag == 1)
           {
             mnSigmaE_Pt_Eta_SMD[trig][trkHFTflag]->Fill(sparseFill);
             //mnSigmaE_Pt_Eta_SMD[trig][trkHFTflag]->Fill(mpt,nsige,meta);
             /*mnSigmaPI_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigpi);
-            mnSigmaP_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigp);
-            mnSigmaE_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsige);
-            mnSigmaK_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigk);
-            */
+              mnSigmaP_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigp);
+              mnSigmaE_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsige);
+              mnSigmaK_Pt_SMD[trig][trkHFTflag]->Fill(mpt,nsigk);
+              */
           }
         }
         // Tighter SMD Cuts
@@ -548,19 +569,19 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           mnSigmaE_Pt_Eta_SMD2[trig][0]->Fill(sparseFill);
           //mnSigmaE_Pt_Eta_SMD2[trig][0]->Fill(mpt,nsige,meta);
           /*mnSigmaPI_Pt_SMD2[trig][0]->Fill(mpt,nsigpi);
-          mnSigmaP_Pt_SMD2[trig][0]->Fill(mpt,nsigp);
-          mnSigmaE_Pt_SMD2[trig][0]->Fill(mpt,nsige);
-          mnSigmaK_Pt_SMD2[trig][0]->Fill(mpt,nsigk);
-          */
+            mnSigmaP_Pt_SMD2[trig][0]->Fill(mpt,nsigp);
+            mnSigmaE_Pt_SMD2[trig][0]->Fill(mpt,nsige);
+            mnSigmaK_Pt_SMD2[trig][0]->Fill(mpt,nsigk);
+            */
           if(trkHFTflag == 1)
           {
             mnSigmaE_Pt_Eta_SMD2[trig][trkHFTflag]->Fill(sparseFill);
             //mnSigmaE_Pt_Eta_SMD2[trig][trkHFTflag]->Fill(mpt,nsige,meta);
             /*mnSigmaPI_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigpi);
-            mnSigmaP_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigp);
-            mnSigmaE_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsige);
-            mnSigmaK_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigk);
-            */
+              mnSigmaP_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigp);
+              mnSigmaE_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsige);
+              mnSigmaK_Pt_SMD2[trig][trkHFTflag]->Fill(mpt,nsigk);
+              */
           }
         }
       }
@@ -585,7 +606,7 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
           Double_t tofm2=mmomentum*mmomentum*( 1.0/(tofbeta*tofbeta)-1.0);
           //minvsBeta_Pt[trig]->Fill(mpt,tofbeta);
           //if(tofbeta>0){
-           // mtofM2_Pt[trig]->Fill(mpt,tofm2);
+          // mtofM2_Pt[trig]->Fill(mpt,tofm2);
           //}
 
           // For Purity
@@ -598,20 +619,20 @@ Int_t StPicoElecPurityMaker::FillHistograms(Int_t trig, StPicoEvent* event)
 
           mnSigmaE_Pt_Eta_TOF[trig][0]->Fill(sparseFill);
           //mnSigmaE_Pt_Eta_TOF[trig][0]->Fill(mpt,nsige,meta);
-         /* mnSigmaPI_Pt_TOF[trig][0]->Fill(mpt,nsigpi);
-          mnSigmaP_Pt_TOF[trig][0]->Fill(mpt,nsigp);
-          mnSigmaE_Pt_TOF[trig][0]->Fill(mpt,nsige);
-          mnSigmaK_Pt_TOF[trig][0]->Fill(mpt,nsigk);
-         */
+          /* mnSigmaPI_Pt_TOF[trig][0]->Fill(mpt,nsigpi);
+             mnSigmaP_Pt_TOF[trig][0]->Fill(mpt,nsigp);
+             mnSigmaE_Pt_TOF[trig][0]->Fill(mpt,nsige);
+             mnSigmaK_Pt_TOF[trig][0]->Fill(mpt,nsigk);
+             */
           if(trkHFTflag == 1)
           {
             mnSigmaE_Pt_Eta_TOF[trig][trkHFTflag]->Fill(sparseFill);
             //mnSigmaE_Pt_Eta_TOF[trig][trkHFTflag]->Fill(mpt,nsige,meta);
             /*mnSigmaPI_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigpi);
-            mnSigmaP_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigp);
-            mnSigmaE_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsige);
-            mnSigmaK_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigk);
-            */
+              mnSigmaP_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigp);
+              mnSigmaE_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsige);
+              mnSigmaK_Pt_TOF[trig][trkHFTflag]->Fill(mpt,nsigk);
+              */
           }
 
           Int_t tofcellid=   btofpidtrait->btofCellId();
@@ -793,10 +814,10 @@ Int_t StPicoElecPurityMaker::passSMDCuts(StPicoEvent* event, StPicoTrack* track,
       if((trg->flag() & 0xf)){
         int trgId = trg->id();
         if(btowId == trgId){
-          cout << "bTowId: " << btowId << " ";
-          cout << "trgID: " << trgId << " ";
+          if(DEBUG)cout << "bTowId: " << btowId << " ";
+          if(DEBUG)cout << "trgID: " << trgId << " ";
           dsmadc = trg->adc();
-          cout << "trg->adc(): " << dsmadc << endl;
+          if(DEBUG)cout << "trg->adc(): " << dsmadc << endl;
           break;
         }
       }
@@ -848,10 +869,10 @@ Bool_t StPicoElecPurityMaker::passBEMCCuts(StPicoEvent* event, StPicoTrack* trac
       if((trg->flag() & 0xf)){
         int trgId = trg->id();
         if(btowId == trgId){
-          cout << "bTowId: " << btowId << " ";
-          cout << "trgID: " << trgId << " ";
+          if(DEBUG)cout << "bTowId: " << btowId << " ";
+          if(DEBUG)cout << "trgID: " << trgId << " ";
           dsmadc = trg->adc();
-          cout << "trg->adc(): " << dsmadc << endl;
+          if(DEBUG)cout << "trg->adc(): " << dsmadc << endl;
           break;
         }
       }
@@ -888,7 +909,7 @@ Bool_t StPicoElecPurityMaker::checkHotTower(int runId, int towId)
         return true;
     }
   }
-  
+
   if(runId >= 15128025 && runId <= 15167014) // range 3 of hot tower ist
   {  
     for(int i=0; i < mNHotTower3; i++)
